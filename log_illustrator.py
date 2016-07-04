@@ -17,8 +17,19 @@ def illustrate(input_filename, output_filename, output_format="PNG"):
     path_file.readline()
 
     path = []
-    for line in path_file.readlines():
+    line = path_file.readline()
+    while line != '\n':
         path.append(tuple([int(j) for j in line.rstrip().split()]))
+        line = path_file.readline()
+
+    opened = set()
+    closed = set()
+    for line in path_file.readlines():
+        x, y, is_closed = [int(j) for j in line.rstrip().split()]
+        if is_closed:
+            closed.add((x, y))
+        else:
+            opened.add((x, y))
 
     path_file.close()
     start = path[0]
@@ -31,20 +42,26 @@ def illustrate(input_filename, output_filename, output_format="PNG"):
     SNAG_COLOR = (0, 0, 0)
     START_COLOR = (0, 255, 0)
     FINISH_COLOR = (255, 0, 0)
+    CLOSED_COLOR = (87, 72, 468)
+    OPENED_COLOR = (18, 47, 170)
 
     im = Image.new("RGB", (2 * width, 2 * height), color=(255, 255, 255))
 
     dr = ImageDraw.Draw(im)
     for x in range(height):
         for y in range(width):
-            if ((x, y) == start):
+            if (x, y) == start:
                 color = START_COLOR
-            elif ((x, y) == finish):
+            elif (x, y) == finish:
                 color = FINISH_COLOR
-            elif (matrix[x][y]):
+            elif matrix[x][y]:
                 color = SNAG_COLOR
-            elif ((x, y) in path):
+            elif (x, y) in path:
                 color = PATH_COLOR
+            elif (x, y) in closed:
+                color = CLOSED_COLOR
+            elif (x, y) in opened:
+                color = OPENED_COLOR
             else:
                 color = EMPTY_COLOR
 

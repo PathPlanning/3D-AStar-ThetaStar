@@ -37,14 +37,17 @@ private:
     bool diag_allowed;
 
     struct queue_node {
-        vertex pos, parent;
-        long double path_cost, h_value;
+        vertex v;
+        vertex parent;
+        long double g_value;
+        long double h_value;
 
         long double f_val() const {
-            return path_cost + h_value;
+            return g_value + h_value;
         }
 
-        bool operator>(const queue_node &other) const {
+        // !!! It is a GREATER operator. Inversion is made for STL priority queue
+        bool operator<(const queue_node &other) const {
             return f_val() > other.f_val();
         }
     };
@@ -58,8 +61,8 @@ private:
         void sift_up(size_t pos) {
             queue_node tmp;
             while (pos > 1 && data[pos].f_val() < data[pos >> 1].f_val()) {
-                indexes[data[pos].pos] = pos >> 1;
-                indexes[data[pos >> 1].pos] = pos;
+                indexes[data[pos].v] = pos >> 1;
+                indexes[data[pos >> 1].v] = pos;
                 tmp = data[pos];
                 data[pos] = data[pos >> 1];
                 data[pos >> 1] = tmp;
@@ -83,8 +86,8 @@ private:
                     return;
                 }
 
-                indexes[data[pos].pos] = to_swap;
-                indexes[data[to_swap].pos] = pos;
+                indexes[data[pos].v] = to_swap;
+                indexes[data[to_swap].v] = pos;
                 tmp = data[pos];
                 data[pos] = data[to_swap];
                 data[to_swap] = tmp;
@@ -105,15 +108,15 @@ private:
                 data.push_back(queue_node());
             }
             data[last_not_fake] = val;
-            indexes[val.pos] = last_not_fake;
+            indexes[val.v] = last_not_fake;
             sift_up(last_not_fake);
         }
 
         void update(vertex v, long double new_path, long double new_h) {
             size_t id = indexes[v];
             queue_node node = data[id];
-            if (new_path < node.path_cost) {
-                data[id].path_cost = new_path;
+            if (new_path < node.g_value) {
+                data[id].g_value = new_path;
                 data[id].h_value = new_h;
                 sift_up(id);
             }
@@ -128,9 +131,9 @@ private:
         };
 
         void pop() {
-            indexes.erase(data[1].pos);
+            indexes.erase(data[1].v);
             data[1] = data[last_not_fake];
-            indexes[data[1].pos] = 1;
+            indexes[data[1].v] = 1;
             --last_not_fake;
             sift_down(1);
         }
@@ -189,11 +192,11 @@ private:
         if (from == to) {
             return 0;
         }
-        if (from.first != to.first && from.second != to.second) {
-            return diag_cost;
+        if (from.first == to.first || from.second == to.second) {
+            return straight_cost;
         }
 
-        return straight_cost;
+        return diag_cost;
     }
 
 public:
@@ -218,11 +221,13 @@ public:
     }
 
     long double graph_search(vertex start, vertex finish,
-                             bool recover_path = false, std::list<vertex> *path = nullptr) const {
-        std::priority_queue<queue_node, std::vector<queue_node>, std::greater<queue_node>> opened;
-        std::map<vertex, std::pair<long double, vertex>> closed;
+                             bool recover_path = false, std::list<vertex> *path = nullptr,
+                             bool record_visited = false,
+                             std::map<vertex, bool> *visited = nullptr) const {
+        std::priority_queue<queue_node> opened;
+        std::map<vertex, vertex> closed;
         std::map<vertex, long double> g_val;
-        opened.push({start, start, 0, heuristic(start.first, start.second)});
+        opened.push({start, start, 0, heuristic(start)});
         g_val[start] = 0;
 
         queue_node current;
@@ -231,32 +236,39 @@ public:
             current = opened.top();
             opened.pop();
 
-            if (closed.find(current.pos) == closed.end()) {
-                for (vertex u : neigbors(current.pos)) {
+            if (closed.find(current.v) == closed.end()) {
+                for (vertex u : neigbors(current.v)) {
                     if (g_val.find(u) == g_val.end()) {
                         g_val[u] = std::numeric_limits<long double>::infinity();
+
+                        if (record_visited){
+                            visited->operator[](current.v) = false;
+                        }
                     }
-                    upd_cost = g_val[current.pos] + get_cost(current.pos, u);
+                    upd_cost = g_val[current.v] + get_cost(current.v, u);
                     if (upd_cost < g_val[u]) {
                         g_val[u] = upd_cost;
-                        opened.push({u, current.pos, upd_cost, heuristic(u)});
+                        opened.push({u, current.v, upd_cost, heuristic(u)});
                     }
                 }
 
-                closed[current.pos] = {current.path_cost, current.parent};
+                closed[current.v] = current.parent;
+                if (record_visited){
+                    visited->operator[](current.v) = true;
+                }
             }
-        } while (current.pos != finish && !opened.empty());
+        } while (current.v != finish && !opened.empty());
 
         if (recover_path && closed.find(finish) != closed.end()) {
             vertex point = finish;
             do {
                 path->push_front(point);
-                point = closed[point].second;
+                point = closed[point];
             } while (point != start);
         }
 
-        if (current.pos == finish) {
-            return current.path_cost;
+        if (current.v == finish) {
+            return current.g_value;
         } else {
             return std::numeric_limits<long double>::infinity();
         }
@@ -274,25 +286,26 @@ public:
 
 class Astar : public GraphSearcher {
 private:
-    const uint_fast32_t C_d = 14;
-    const uint_fast32_t C_hv = 10;
+    const uint_fast32_t C_d = 1;
+    const uint_fast32_t C_hv = 1;
     long double weight;
     GraphSearcher::vertex finish;
 public:
     long double delta_heuristic(uint_fast32_t x, uint_fast32_t y) const {
         uint_fast32_t delta_x = (x > finish.first ? (x - finish.first) : (finish.first - x));
-        uint_fast32_t delta_y = (y > finish.first ? (y - finish.first) : (finish.first - y));
+        uint_fast32_t delta_y = (y > finish.second ? (y - finish.second) : (finish.second - y));
 
         if (delta_x > delta_y) {
-            return delta_y + (delta_x - delta_y);
+            return C_d * delta_y + C_hv * (delta_x - delta_y);
         } else {
-            return delta_x + (delta_y - delta_x);
+            return C_d * delta_x + C_hv * (delta_y - delta_x);
         }
     }
 
     long double euclid_heuristic(uint_fast32_t x, uint_fast32_t y) const {
-        long double square = std::pow(x - finish.first, 2) + std::pow(y - finish.second, 2);
-        return std::floor(std::sqrt(square));
+        uint_fast32_t delta_x = (x > finish.first ? (x - finish.first) : (finish.first - x));
+        uint_fast32_t delta_y = (y > finish.second ? (y - finish.second) : (finish.second - y));
+        return std::sqrt(std::pow(delta_x, 2) + std::pow(delta_y, 2));
     }
 
     long double heuristic(uint_fast32_t x, uint_fast32_t y) const {
@@ -358,8 +371,10 @@ void evaluate_task(const char *task_file_path, const char *output_file_path) {
     Astar Searcher(test_task);
 
     std::list<GraphSearcher::vertex> path;
+    std::map<GraphSearcher::vertex, bool> visited_list;
+
     std::cout << "Path found with cost: \t"
-    << Searcher.graph_search(test_task.start, test_task.finish, true, &path) << "\n\n";
+    << Searcher.graph_search(test_task.start, test_task.finish, true, &path, true, &visited_list) << "\n\n";
 
     std::ofstream out(output_file_path);
     out << test_task.height << '\n' << test_task.width << "\n\n";
@@ -373,6 +388,11 @@ void evaluate_task(const char *task_file_path, const char *output_file_path) {
 
     for (auto node : path) {
         out << node.first << ' ' << node.second << '\n';
+    }
+    out << '\n';
+
+    for (auto It = visited_list.begin(); It != visited_list.end(); ++It) {
+        out << It->first.first << ' ' << It->first.second << ' ' << It->second << '\n';
     }
 
     out.close();
