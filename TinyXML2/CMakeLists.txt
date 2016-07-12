@@ -1,1 +1,0 @@
-ADD_LIBRARY(tinyxml2 SHARED tinyxml2.h tinyxml2.cpp)
