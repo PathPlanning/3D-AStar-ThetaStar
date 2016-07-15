@@ -109,7 +109,8 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
     }
 
     auto finish_time = std::chrono::high_resolution_clock::now();
-    sresult.time = std::chrono::duration_cast<std::chrono::seconds>(finish_time - start_time).count();
+    sresult.time = std::chrono::duration_cast<std::chrono::microseconds>(finish_time - start_time).count();
+    sresult.time /= 1000000;
     sresult.numberofsteps = closed.size();
     sresult.nodescreated = closed.size() + opened.size();
 

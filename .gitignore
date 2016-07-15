@@ -76,3 +76,4 @@ venv/
 *.xml
 *.path.txt
 *.png
+build/

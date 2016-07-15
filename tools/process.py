@@ -2,9 +2,17 @@
 
 from PIL import Image, ImageDraw
 import xml.etree.ElementTree as ET
+import re
+import subprocess
+import multiprocessing
+
+SETTINGS = {
+    'max_treads': 3,
+
+}
 
 
-def parse_log(filename):
+def parse_log(filename, shell=False):
     parse_result = {}
 
     tree = ET.parse(filename)
@@ -38,7 +46,8 @@ def parse_log(filename):
     closed = set()
     opened = set()
     if level is None:
-        print("Can not find viewed section. Points visited by algorithm won't be shown for {}.".format(filename))
+        if shell:
+            print("Can not find viewed section. Points visited by algorithm won't be shown for {}.".format(filename))
     else:
         for node in level.iter('node'):
             if (node.get('closed')):
@@ -50,6 +59,7 @@ def parse_log(filename):
     parse_result['opened_list'] = opened
 
     return parse_result
+
 
 def illustrate(parsed_data, output_filename, output_format="PNG"):
     height = parsed_data['height']
@@ -92,18 +102,45 @@ def illustrate(parsed_data, output_filename, output_format="PNG"):
     im.save(output_filename, output_format)
 
 
-if __name__ == "__main__":
-    from os import listdir
-    import re
+def get_log_output_filename(task_filename):
+    tree = ET.parse(task_filename)
+    root = tree.getroot()
+    logpath = root.find('options').find('logpath')
+    path = logpath.text
+    if path is not None:
+        return path
+    m = re.match(r'(?P<name>.+)\.xml', task_filename)
+    return m.group('name') + "_log.xml"
 
-    dir_path = input("Please enter the path to the directory with calculated path files:  ")
+
+def make_path_and_picture(exec_filename, input_filename, log_filename, picture_filename, picture_format='PNG'):
+    code = subprocess.run([exec_filename, input_filename],
+                          stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT).returncode
+    if code == 0:
+        data = parse_log(log_filename)
+        illustrate(data, picture_filename, picture_format)
+        print("{} processed successfully".format(input_filename))
+    else:
+        print("Error has occurred during searching path for {}.\
+        Program has finished with exit code {}".format(input_filename, code))
+
+
+if __name__ == "__main__":
+    from os import listdir, cpu_count, path
+
+    exec_path = path.abspath(input("Введите путь к исполняемому файлу проекта:  "))
+    dir_path = path.abspath(input("Введите путь к папке с заданиями в формате XML:  "))
     files = listdir(dir_path)
+
+    tasks = {}
     for filename in files:
-        m = re.match(r'(?P<number>\d+)\.?.*_log\.xml', filename)
+        m = re.match(r'(?P<number>\d+)\.xml', filename)
         if m:
-            number = m.group("number")
-            #try:
-            data = parse_log(dir_path + '/' + filename)
-            illustrate(data, dir_path + '/' + str(number) + ".png")
-            #except Exception:
-                #print("File {} is not a correct log file. Can not make a picture".format(filename))
+            tasks[path.join(dir_path, filename)] = (get_log_output_filename(path.join(dir_path, filename)),
+                                                    path.join(dir_path, m.group('number') + '.png'))
+
+    with multiprocessing.Pool(min(SETTINGS['max_treads'], cpu_count())) as pool:
+        for inp_path, val in tasks.items():
+            pool.apply_async(make_path_and_picture, [exec_path, inp_path, val[0], val[1]])
+        pool.close()
+        pool.join()

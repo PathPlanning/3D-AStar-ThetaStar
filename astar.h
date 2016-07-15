@@ -9,7 +9,6 @@ class Astar : public ISearch
 {
     public:
         Astar(double weight, int BT, int SL);
-        ~Astar();
 
 protected:
     virtual double heuristic(int i, int j, int goal_i, int goal_j, const EnvironmentOptions &options) const;

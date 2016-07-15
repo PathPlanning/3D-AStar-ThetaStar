@@ -10,10 +10,6 @@ Astar::Astar(double w, int BT, int SL)
     sizelimit = SL;
 }
 
-Astar::~Astar()
-{
-}
-
 double Astar::heuristic(int i, int j, int goal_i, int goal_j, const EnvironmentOptions &options) const {
     double result;
     int delta_i, delta_j;
