@@ -1,14 +1,21 @@
 #!./venv/bin/python3
 
-from PIL import Image, ImageDraw
-import xml.etree.ElementTree as ET
-import re
-import subprocess
 import multiprocessing
+import subprocess
+import xml.etree.ElementTree as ET
+
+import re
+from PIL import Image, ImageDraw
 
 SETTINGS = {
     'max_treads': 3,
-
+    'EMPTY_COLOR': (255, 255, 255),
+    'PATH_COLOR': (255, 255, 0),
+    'OBSTACLE_COLOR': (0, 0, 0),
+    'START_COLOR': (0, 255, 0),
+    'FINISH_COLOR': (255, 0, 0),
+    'CLOSED_COLOR': (87, 72, 468),
+    'OPENED_COLOR': (18, 47, 170)
 }
 
 
@@ -68,33 +75,25 @@ def illustrate(parsed_data, output_filename, output_format="PNG"):
     finish = parsed_data['finish']
 
     # Drawing result. Each cell has 2 pixel edge
-    EMPTY_COLOR = (255, 255, 255)
-    PATH_COLOR = (255, 255, 0)
-    SNAG_COLOR = (0, 0, 0)
-    START_COLOR = (0, 255, 0)
-    FINISH_COLOR = (255, 0, 0)
-    CLOSED_COLOR = (87, 72, 468)
-    OPENED_COLOR = (18, 47, 170)
-
-    im = Image.new("RGB", (2 * width, 2 * height), color=(255, 255, 255))
+    im = Image.new("RGB", (2 * width, 2 * height), color=SETTINGS['EMPTY_COLOR'])
 
     dr = ImageDraw.Draw(im)
     for x in range(width):
         for y in range(height):
             if (x, y) == start:
-                color = START_COLOR
+                color = SETTINGS['START_COLOR']
             elif (x, y) == finish:
-                color = FINISH_COLOR
+                color = SETTINGS['FINISH_COLOR']
             elif parsed_data['map'][y][x]:
-                color = SNAG_COLOR
+                color = SETTINGS['OBSTACLE_COLOR']
             elif (x, y) in parsed_data['path']:
-                color = PATH_COLOR
+                color = SETTINGS['PATH_COLOR']
             elif (x, y) in parsed_data['closed_list']:
-                color = CLOSED_COLOR
+                color = SETTINGS['CLOSED_COLOR']
             elif (x, y) in parsed_data['opened_list']:
-                color = OPENED_COLOR
+                color = SETTINGS['OPENED_COLOR']
             else:
-                color = EMPTY_COLOR
+                color = SETTINGS['EMPTY_COLOR']
 
             dr.rectangle([(2 * x, 2 * y), (2 * x + 2, 2 * y + 2)], fill=color)
 

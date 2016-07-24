@@ -1,9 +1,39 @@
 #include "minqueue.h"
-#include "node.h"
-#include "gl_const.h"
 
-#include <vector>
 #include <limits>
+
+void minqueue::const_iterator::generate_val() {
+    val.coord = it->first;
+    val.F = it->second.F;
+    val.g = it->second.g;
+    val.H = it->second.H;
+    val.parent = it->second.parent;
+}
+
+minqueue::const_iterator::const_iterator(const typename std::map<vertex, croppedNode>::const_iterator &init) : it(init) {
+        generate_val();
+}
+
+minqueue::const_iterator::const_iterator(const const_iterator& other) : it(other.it), val(other.val) {}
+
+minqueue::const_iterator& minqueue::const_iterator::operator++() {
+    ++it;
+    generate_val();
+    return *this;
+}
+
+minqueue::const_iterator minqueue::const_iterator::operator++(int) {
+    const_iterator tmp(*this);
+    operator++();
+    return tmp;
+}
+
+bool minqueue::const_iterator::operator==(const const_iterator& rhs) const {return it == rhs.it;}
+
+bool minqueue::const_iterator::operator!=(const const_iterator& rhs) const {return it != rhs.it;}
+
+extNode minqueue::const_iterator::operator*() const {return val;}
+
 
 minqueue::minqueue(int BT) : data() {
     if (BT == CN_SP_BT_GMIN) {
@@ -25,6 +55,14 @@ bool minqueue::less(const croppedNode &x, const croppedNode &y) const {
 
 extNode minqueue::top() const {
     return min;
+}
+
+minqueue::const_iterator minqueue::cbegin() const {
+    return minqueue::const_iterator(data.cbegin());
+}
+
+minqueue::const_iterator minqueue::cend() const {
+    return minqueue::const_iterator(data.cend());
 }
 
 void minqueue::pop() {

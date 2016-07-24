@@ -8,7 +8,7 @@ TARGET = ASearch
 CONFIG   += console
 CONFIG   -= app_bundle
 TEMPLATE = app
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++11 -o2
 
 win32 {
 QMAKE_LFLAGS += -static -static-libgcc -static-libstdc++
@@ -25,7 +25,7 @@ SOURCES += \
     map.cpp \
     list.cpp \
     config.cpp \
-    astar.cpp \
+    JPS.cpp \
     asearch.cpp \
     environmentoptions.cpp \
     minqueue.cpp
@@ -42,7 +42,7 @@ HEADERS += \
     ilogger.h \
     list.h \
     config.h \
-    astar.h \
+    JPS.h \
     searchresult.h \
     environmentoptions.h \
     minqueue.h

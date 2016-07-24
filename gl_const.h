@@ -177,5 +177,21 @@
 /*
  * End of other ----------------------------------------------------------------
  */
+
+/*
+ * Move directions
+ */
+#define CN_MD_STATIC 0
+#define CN_MD_UP 1
+#define CN_MD_UP_RIGHT 2
+#define CN_MD_RIGHT 3
+#define CN_MD_DOWN_RIGHT 4
+#define CN_MD_DOWN 5
+#define CN_MD_DOWN_LEFT 6
+#define CN_MD_LEFT 7
+#define CN_MD_UP_LEFT 8
+/*
+ * End of move directions
+ */
 #endif
 
