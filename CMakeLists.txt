@@ -5,8 +5,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -o2")
 
 set(SOURCE_FILES
     asearch.cpp
-    astar.cpp
-    astar.h
     config.cpp
     config.h
     environmentoptions.cpp
@@ -32,6 +30,6 @@ set(SOURCE_FILES
     xmllogger.cpp
     xmllogger.h
         minqueue.cpp
-        minqueue.h)
+        minqueue.h JPS.cpp JPS.h orthogonalJPS.cpp orthogonalJPS.h)
 
 add_executable(ASearch_cutted ${SOURCE_FILES})
