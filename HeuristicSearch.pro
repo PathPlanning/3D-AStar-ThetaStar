@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-TARGET = ASearch
+TARGET = HeuristicSearch
 CONFIG   += console
 CONFIG   -= app_bundle
 TEMPLATE = app
@@ -28,7 +28,8 @@ SOURCES += \
     JPS.cpp \
     asearch.cpp \
     environmentoptions.cpp \
-    minqueue.cpp
+    minqueue.cpp \
+    astar.cpp
 
 HEADERS += \
     tinyxml.h \
@@ -45,4 +46,5 @@ HEADERS += \
     JPS.h \
     searchresult.h \
     environmentoptions.h \
-    minqueue.h
+    minqueue.h \
+    astar.h

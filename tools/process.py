@@ -15,7 +15,7 @@ SETTINGS = {
     'START_COLOR': (0, 255, 0),
     'FINISH_COLOR': (255, 0, 0),
     'CLOSED_COLOR': (87, 72, 468),
-    'OPENED_COLOR': (18, 47, 170)
+    'OPENED_COLOR': (123, 63, 0)
 }
 
 

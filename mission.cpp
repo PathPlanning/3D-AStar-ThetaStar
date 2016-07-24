@@ -1,5 +1,6 @@
 #include "mission.h"
 #include "xmllogger.h"
+#include "astar.h"
 #include "JPS.h"
 
 Mission::Mission()//� config � map - ���� ���� ������������ �� ���������, �� ����� �� ���� ����������������.
@@ -51,14 +52,16 @@ void Mission::createEnvironmentOptions()
 
 void Mission::createSearch()
 {
-    switch ((int)config.SearchParams[CN_SP_ST]) {
-        default:
-        case CN_SP_ST_JP_SEARCH:
-            if (options.allowdiagonal) {
-                search = new JPS(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
-            } else {
-                search = new orthogonalJPS(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
-            }
+    if (config.SearchParams[CN_SP_ST] == CN_SP_ST_JP_SEARCH) {
+        if (options.allowdiagonal) {
+            search = new JPS(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
+        } else {
+            search = new orthogonalJPS(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
+        }
+    } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_DIJK) {
+        search = new Dijkstra(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
+    } else {
+        search = new Astar(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
     }
 }
 
