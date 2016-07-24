@@ -8,46 +8,46 @@
  */
 #define CNS_TAG_ROOT "root"
 
-    #define CNS_TAG_MAP         "map"
-        #define CNS_TAG_WIDTH   "width"
-        #define CNS_TAG_HEIGHT  "height"
-        #define CNS_TAG_STX     "startx"
-        #define CNS_TAG_STY     "starty"
-        #define CNS_TAG_FINX    "finishx"
-        #define CNS_TAG_FINY    "finishy"
-        #define CNS_TAG_GRID    "grid"
-            #define CNS_TAG_ROW "row"
+#define CNS_TAG_MAP         "map"
+#define CNS_TAG_WIDTH   "width"
+#define CNS_TAG_HEIGHT  "height"
+#define CNS_TAG_STX     "startx"
+#define CNS_TAG_STY     "starty"
+#define CNS_TAG_FINX    "finishx"
+#define CNS_TAG_FINY    "finishy"
+#define CNS_TAG_GRID    "grid"
+#define CNS_TAG_ROW "row"
 
-    #define CNS_TAG_ALG     "algorithm"
-        #define CNS_TAG_ST  "searchtype"
-        #define CNS_TAG_HW  "hweight"
-        #define CNS_TAG_MT  "metrictype"
-        #define CNS_TAG_BT  "breakingties"
-        #define CNS_TAG_SL  "sizelimit"
-        #define CNS_TAG_AS  "allowsqueeze"
-        #define CNS_TAG_LC  "linecost"
-        #define CNS_TAG_DC  "diagonalcost"
-        #define CNS_TAG_AD  "allowdiagonal"
-        #define CNS_TAG_RP  "useresetparent"
+#define CNS_TAG_ALG     "algorithm"
+#define CNS_TAG_ST  "searchtype"
+#define CNS_TAG_HW  "hweight"
+#define CNS_TAG_MT  "metrictype"
+#define CNS_TAG_BT  "breakingties"
+#define CNS_TAG_SL  "sizelimit"
+#define CNS_TAG_AS  "allowsqueeze"
+#define CNS_TAG_LC  "linecost"
+#define CNS_TAG_DC  "diagonalcost"
+#define CNS_TAG_AD  "allowdiagonal"
+#define CNS_TAG_RP  "useresetparent"
 
-    #define CNS_TAG_OPT         "options"
-        #define CNS_TAG_LOGLVL  "loglevel"
-        #define CNS_TAG_LOGPATH "logpath"
-        #define CNS_TAG_LOGFN   "logfilename"
+#define CNS_TAG_OPT         "options"
+#define CNS_TAG_LOGLVL  "loglevel"
+#define CNS_TAG_LOGPATH "logpath"
+#define CNS_TAG_LOGFN   "logfilename"
 
-    #define CNS_TAG_LOG "log"
-        #define CNS_TAG_MAPFN       "mapfilename"
-        #define CNS_TAG_SUM         "summary"
-        #define CNS_TAG_PATH        "path"
-        #define CNS_TAG_LPLEVEL     "lplevel"
-        #define CNS_TAG_HPLEVEL     "hplevel"
-            #define CNS_TAG_SECTION "section"
-        #define CNS_TAG_LOWLEVEL    "lowlevel"
-            #define CNS_TAG_STEP    "step"
-            #define CNS_TAG_OPEN    "open"
-            #define CNS_TAG_POINT   "node"
-            #define CNS_TAG_CLOSE   "close"
-            #define CNS_TAG_VIEWED   "viewed"
+#define CNS_TAG_LOG "log"
+#define CNS_TAG_MAPFN       "mapfilename"
+#define CNS_TAG_SUM         "summary"
+#define CNS_TAG_PATH        "path"
+#define CNS_TAG_LPLEVEL     "lplevel"
+#define CNS_TAG_HPLEVEL     "hplevel"
+#define CNS_TAG_SECTION "section"
+#define CNS_TAG_LOWLEVEL    "lowlevel"
+#define CNS_TAG_STEP    "step"
+#define CNS_TAG_OPEN    "open"
+#define CNS_TAG_POINT   "node"
+#define CNS_TAG_CLOSE   "close"
+#define CNS_TAG_VIEWED   "viewed"
 
 /*
  * End of XML files tags -------------------------------------------------------
@@ -56,21 +56,21 @@
 /*
  * XML files tag's attributes --------------------------------------------------
  */
-    #define CNS_TAG_ATTR_NUMOFSTEPS     "numberofsteps"
-    #define CNS_TAG_ATTR_NODESCREATED   "nodescreated"
-    #define CNS_TAG_ATTR_LENGTH         "length"
-    #define CNS_TAG_ATTR_TIME           "time"
-    #define CNS_TAG_ATTR_X              "x"
-    #define CNS_TAG_ATTR_Y              "y"
-    #define CNS_TAG_ATTR_NUM            "number"
-    #define CNS_TAG_ATTR_F              "F"
-    #define CNS_TAG_ATTR_G              "g"
-    #define CNS_TAG_ATTR_PARX           "parent_x"
-    #define CNS_TAG_ATTR_PARY           "parent_y"
-    #define CNS_TAG_ATTR_STX            "start.x"
-    #define CNS_TAG_ATTR_STY            "start.y"
-    #define CNS_TAG_ATTR_FINX           "finish.x"
-    #define CNS_TAG_ATTR_FINY           "finish.y"
+#define CNS_TAG_ATTR_NUMOFSTEPS     "numberofsteps"
+#define CNS_TAG_ATTR_NODESCREATED   "nodescreated"
+#define CNS_TAG_ATTR_LENGTH         "length"
+#define CNS_TAG_ATTR_TIME           "time"
+#define CNS_TAG_ATTR_X              "x"
+#define CNS_TAG_ATTR_Y              "y"
+#define CNS_TAG_ATTR_NUM            "number"
+#define CNS_TAG_ATTR_F              "F"
+#define CNS_TAG_ATTR_G              "g"
+#define CNS_TAG_ATTR_PARX           "parent_x"
+#define CNS_TAG_ATTR_PARY           "parent_y"
+#define CNS_TAG_ATTR_STX            "start.x"
+#define CNS_TAG_ATTR_STY            "start.y"
+#define CNS_TAG_ATTR_FINX           "finish.x"
+#define CNS_TAG_ATTR_FINY           "finish.y"
 
 
 /*
@@ -80,72 +80,72 @@
 /*
  * Configuration. SearchParams array -------------------------------------------
  */
-    #define CN_SP_ST 0
+#define CN_SP_ST 0
 
-        #define CNS_SP_ST_BFS       "bfs"
-        #define CNS_SP_ST_JP_SEARCH "jp_search"
-        #define CNS_SP_ST_DIJK      "dijkstra"
-        #define CNS_SP_ST_ASTAR     "astar"
-        #define CNS_SP_ST_TH        "theta"
+#define CNS_SP_ST_BFS       "bfs"
+#define CNS_SP_ST_JP_SEARCH "jp_search"
+#define CNS_SP_ST_DIJK      "dijkstra"
+#define CNS_SP_ST_ASTAR     "astar"
+#define CNS_SP_ST_TH        "theta"
 
-        #define CN_SP_ST_BFS        0
-        #define CN_SP_ST_DIJK       1
-        #define CN_SP_ST_ASTAR      2
-        #define CN_SP_ST_JP_SEARCH  3
-        #define CN_SP_ST_TH         4
-
-
-    #define CN_SP_LL 1
-
-        #define CN_SP_LL_NOLOG      0
-        #define CN_SP_LL_SMALLLOG   1
-        #define CN_SP_LL_FULLLOG    2
-
-    #define CN_SP_AS 2 //AllowSqueeze
-
-        #define CN_SP_AS_TRUE 1
-        #define CN_SP_AS_FALSE 0
-
-    #define CN_SP_LC 3 //LineCost
-
-    #define CN_SP_DC 4 //DiagonalCost
-
-    #define CN_SP_AD 5 //AllowDiagonal
-        #define CN_SP_AD_TRUE 1
-        #define CN_SP_AD_FALSE 0
-
-    #define CN_SP_HW 6 //HWeight
-
-    #define CN_SP_MT 7 //MetricType
-
-        #define CNS_SP_MT_DIAG "diagonal"
-        #define CNS_SP_MT_MANH "manhattan"
-        #define CNS_SP_MT_EUCL "euclid"
-        #define CNS_SP_MT_CHEB "chebyshev"
-
-        #define CN_SP_MT_DIAG 0
-        #define CN_SP_MT_MANH 1
-        #define CN_SP_MT_EUCL 2
-        #define CN_SP_MT_CHEB 3
-
-    #define CN_SP_BT 8
-
-        #define CNS_SP_BT_GMIN "g-min"
-        #define CNS_SP_BT_GMAX "g-max"
-
-        #define CN_SP_BT_GMIN 1
-        #define CN_SP_BT_GMAX 2
-
-    #define CN_SP_SL 9
-        #define CN_SP_SL_NOLIMIT -1 //важно чтобы константа была меньше либо равна нулю!
-
-    #define CN_SP_RP 10 //UseResetParent
+#define CN_SP_ST_BFS        0
+#define CN_SP_ST_DIJK       1
+#define CN_SP_ST_ASTAR      2
+#define CN_SP_ST_JP_SEARCH  3
+#define CN_SP_ST_TH         4
 
 
+#define CN_SP_LL 1
+
+#define CN_SP_LL_NOLOG      0
+#define CN_SP_LL_SMALLLOG   1
+#define CN_SP_LL_FULLLOG    2
+
+#define CN_SP_AS 2 //AllowSqueeze
+
+#define CN_SP_AS_TRUE 1
+#define CN_SP_AS_FALSE 0
+
+#define CN_SP_LC 3 //LineCost
+
+#define CN_SP_DC 4 //DiagonalCost
+
+#define CN_SP_AD 5 //AllowDiagonal
+#define CN_SP_AD_TRUE 1
+#define CN_SP_AD_FALSE 0
+
+#define CN_SP_HW 6 //HWeight
+
+#define CN_SP_MT 7 //MetricType
+
+#define CNS_SP_MT_DIAG "diagonal"
+#define CNS_SP_MT_MANH "manhattan"
+#define CNS_SP_MT_EUCL "euclid"
+#define CNS_SP_MT_CHEB "chebyshev"
+
+#define CN_SP_MT_DIAG 0
+#define CN_SP_MT_MANH 1
+#define CN_SP_MT_EUCL 2
+#define CN_SP_MT_CHEB 3
+
+#define CN_SP_BT 8
+
+#define CNS_SP_BT_GMIN "g-min"
+#define CNS_SP_BT_GMAX "g-max"
+
+#define CN_SP_BT_GMIN 1
+#define CN_SP_BT_GMAX 2
+
+#define CN_SP_SL 9
+#define CN_SP_SL_NOLIMIT -1 //важно чтобы константа была меньше либо равна нулю!
+
+#define CN_SP_RP 10 //UseResetParent
 
 
-    #define CN_LP_LPATH 0
-    #define CN_LP_LNAME 1
+
+
+#define CN_LP_LPATH 0
+#define CN_LP_LNAME 1
 /*
  * End Configuration -----------------------------------------------------------
  */
@@ -153,8 +153,8 @@
 /*
 * Move Cost -------------------------------------------------------------------
 */
-   #define CN_MC_LINE 10
-   #define CN_MC_DIAG 14
+#define CN_MC_LINE 10
+#define CN_MC_DIAG 14
 /*
 * End of Move Cost ------------------------------------------------------------
 */
@@ -162,8 +162,8 @@
 /*
  * Grid Cell -------------------------------------------------------------------
  */
-    #define CN_GC_NOOBS 0 //клетка проходима
-    #define CN_GC_OBS   1 //препятсвие
+#define CN_GC_NOOBS 0 //клетка проходима
+#define CN_GC_OBS   1 //препятсвие
 /*
  * End of Grid Cell ------------------------------------------------------------
  */
@@ -176,6 +176,22 @@
 #define CN_OTHER_GVALUEOFNOWAY -1
 /*
  * End of other ----------------------------------------------------------------
+ */
+
+/*
+ * Move directions
+ */
+#define CN_MD_STATIC 0
+#define CN_MD_UP 1
+#define CN_MD_UP_RIGHT 2
+#define CN_MD_RIGHT 3
+#define CN_MD_DOWN_RIGHT 4
+#define CN_MD_DOWN 5
+#define CN_MD_DOWN_LEFT 6
+#define CN_MD_LEFT 7
+#define CN_MD_UP_LEFT 8
+/*
+ * End of move directions
  */
 #endif
 

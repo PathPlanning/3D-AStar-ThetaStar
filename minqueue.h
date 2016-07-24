@@ -2,6 +2,7 @@
 #define ASEARCH_CUTTED_MINQUEUE_H
 
 #include <map>
+#include <iterator>
 #include <functional>
 #include <iostream>
 
@@ -23,12 +24,32 @@ private:
     bool less(const croppedNode &x, const croppedNode &y) const;
 
 public:
+    class const_iterator : public std::iterator<std::forward_iterator_tag, extNode> {
+    private:
+        typename std::map<vertex, croppedNode>::const_iterator it;
+        extNode val;
+        friend class minqueue;
+        void generate_val();
+        const_iterator(const typename std::map<vertex, croppedNode>::const_iterator&);
+    public:
+        const_iterator(const const_iterator&);
+        const_iterator& operator++();
+        const_iterator operator++(int);
+        bool operator==(const const_iterator&) const;
+        bool operator!=(const const_iterator&) const;
+        extNode operator*() const;
+    };
+
     minqueue(int BT = CN_SP_BT_GMAX);
 
     /*
      * Insert new node. Or updates node with the same coordinates
      */
     void push(extNode);
+
+    const_iterator cbegin() const;
+
+    const_iterator cend() const;
 
     extNode top() const;
 

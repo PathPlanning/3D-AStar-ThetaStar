@@ -3,35 +3,61 @@
 #include <algorithm>
 #include <math.h>
 
-Astar::Astar(double w, int BT, int SL)
-{
+Astar::Astar() : ISearch() { }
+
+Astar::Astar(double w, int BT, int SL) {
     hweight = w;
     breakingties = BT;
     sizelimit = SL;
 }
 
-double Astar::heuristic(int i, int j, int goal_i, int goal_j, const EnvironmentOptions &options) const {
-    double result;
-    int delta_i, delta_j;
-    switch (options.metrictype) {
-        case CN_SP_MT_CHEB:
-            result = std::max(std::abs(i - goal_i), std::abs(j - goal_j));
-            break;
-        case CN_SP_MT_MANH:
-            result = std::abs(i - goal_i) + std::abs(j - goal_j);
-            break;
-        case CN_SP_MT_DIAG:
-            delta_i = std::abs(i - goal_i);
-            delta_j = std::abs(j - goal_j);
-            if (delta_i < delta_j) {
-                result = options.diagonalcost * delta_i + options.linecost * (delta_j - delta_i);
-            } else {
-                result = options.diagonalcost * delta_j + options.linecost * (delta_i - delta_j);
+void Astar::add_successors_to_opened(const extNode &pos, minqueue &opened, const EnvironmentOptions &options,
+                                     const Map &map) {
+    int i = pos.coord.i;
+    int j = pos.coord.j;
+    bool is_diag_move;
+    extNode upd;
+    for (int add_i = -1; add_i != 2; ++add_i) {
+        for (int add_j = -1; add_j != 2; ++add_j) {
+            // Skip the same point
+            if (add_i == 0 && add_j == 0) {
+                continue;
             }
-            break;
-        case CN_SP_MT_EUCL:
-        default:
-            result = std::sqrt(std::pow(i - goal_i, 2) + std::pow(j - goal_j, 2));
+
+            is_diag_move = add_i != 0 && add_j != 0;
+            // Skip diagonal move, if not allowed
+            if (is_diag_move && !options.allowdiagonal) {
+                continue;
+            }
+
+            if (!map.CellOnGrid(i + add_i, j + add_j) || map.CellIsObstacle(i + add_i, j + add_j)) {
+                continue;
+            }
+
+            // Squeeze check
+            if (is_diag_move && !options.allowsqueeze &&
+                map.CellIsObstacle(i + add_i, j) && map.CellIsObstacle(i, j + add_j)) {
+                continue;
+            }
+
+
+            upd.coord = {i + add_i, j + add_j};
+            upd.g = pos.g + (is_diag_move ? options.diagonalcost : options.linecost);
+            upd.H = heuristic(i + add_i, j + add_j, map.goal_i, map.goal_j, options);
+            upd.parent = pos.coord;
+            upd.calc_F();
+            opened.push(upd);
+
+        }
     }
-    return hweight * result;
+}
+
+Dijkstra::Dijkstra(double weight, int BT, int SL) {
+    hweight = weight;
+    breakingties = BT;
+    sizelimit = SL;
+}
+
+inline double Dijkstra::heuristic(int, int, int, int, const EnvironmentOptions &) const {
+    return 0.0;
 }

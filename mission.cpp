@@ -52,7 +52,6 @@ void Mission::createEnvironmentOptions()
 
 void Mission::createSearch()
 {
-    // TODO algorithm selection
     search = new Astar(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
 }
 
