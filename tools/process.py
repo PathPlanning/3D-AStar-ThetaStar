@@ -36,18 +36,30 @@ def parse_log(filename, shell=False):
     for plain in map.find('grid'):
         parse_result['map'].append([int(i) for i in plain.text.split()])
 
+    algo_name = root.find('algorithm').find('searchtype').text.lower()
+    if algo_name in {'bfs', 'jp_search', 'dijkstra', 'astar'}:
+        any_angle_search = False
+    else:
+        any_angle_search = True
+
     log = root.find('log')
 
     level = log.find('lplevel')
-    if (level is not None):
+    if (not any_angle_search and level is not None):
         parse_result['section_path'] = False
         path = set()
         for node in level.iter('node'):
             path.add((int(node.get('x')), int(node.get('y'))))
         parse_result['path'] = path
     else:
+        path = []
         parse_result['section_path'] = True
         level = log.find('hplevel')
+        section = level.find('section')
+        path.append((int(section.get('start.x')), int(section.get('start.y'))))
+        for section in level.iter('section'):
+            path.append((int(section.get('finish.x')), int(section.get('finish.y'))))
+        parse_result['path'] = path
 
     level = log.find('viewed')
     closed = set()
@@ -80,13 +92,9 @@ def illustrate(parsed_data, output_filename, output_format="PNG"):
     dr = ImageDraw.Draw(im)
     for x in range(width):
         for y in range(height):
-            if (x, y) == start:
-                color = SETTINGS['START_COLOR']
-            elif (x, y) == finish:
-                color = SETTINGS['FINISH_COLOR']
-            elif parsed_data['map'][y][x]:
+            if parsed_data['map'][y][x]:
                 color = SETTINGS['OBSTACLE_COLOR']
-            elif (x, y) in parsed_data['path']:
+            elif not parsed_data['section_path'] and (x, y) in parsed_data['path']:
                 color = SETTINGS['PATH_COLOR']
             elif (x, y) in parsed_data['closed_list']:
                 color = SETTINGS['CLOSED_COLOR']
@@ -97,6 +105,12 @@ def illustrate(parsed_data, output_filename, output_format="PNG"):
 
             dr.rectangle([(2 * x, 2 * y), (2 * x + 2, 2 * y + 2)], fill=color)
 
+    if parsed_data['section_path']:
+        dr.line(list(map(lambda elem: (2 * elem[0], 2 * elem[1]), parsed_data['path'])),
+                fill=SETTINGS['PATH_COLOR'], width=2)
+
+    dr.rectangle([(2 * start[0], 2 * start[1]), (2 * start[0] + 2, 2 * start[1] + 2)], fill=SETTINGS['START_COLOR'])
+    dr.rectangle([(2 * finish[0], 2 * finish[1]), (2 * finish[0] + 2, 2 * finish[1] + 2)], fill=SETTINGS['FINISH_COLOR'])
     del dr
     im.save(output_filename, output_format)
 

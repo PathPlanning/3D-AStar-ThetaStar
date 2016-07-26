@@ -45,7 +45,7 @@ public:
     /*
      * Insert new node. Or updates node with the same coordinates
      */
-    void push(extNode);
+    bool push(const extNode&);
 
     const_iterator cbegin() const;
 

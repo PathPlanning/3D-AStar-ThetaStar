@@ -87,13 +87,15 @@ bool minqueue::empty() const {
     return data.empty();
 }
 
-void minqueue::push(extNode node) {
+bool minqueue::push(const extNode& node) {
     if (data.find(node.coord) == data.end() || data[node.coord].g > node.g) {
         data[node.coord] = node;
         if (data.size() == 1 || less(node, min)) {
             min = node;
         }
+        return true;
     }
+    return false;
 }
 
 /*extNode minqueue::top() const {

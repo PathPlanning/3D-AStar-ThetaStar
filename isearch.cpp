@@ -4,12 +4,14 @@
 
 #include <vector>
 #include <chrono>
+#include <utility>
 #include <queue>
 
 
 ISearch::ISearch() {
 }
 
+//Only straight and diagonal directions
 int ISearch::direction(const vertex &from, const vertex &to) const {
     int delta_i = to.i - from.i;
     int delta_j = to.j - from.j;
@@ -167,9 +169,6 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
     current.calc_F();
     opened.push(current);
 
-    int i, j;
-    bool is_diag_move;
-    extNode upd;
     while (!opened.empty()) {
         current = opened.top();
         opened.pop();
@@ -180,7 +179,7 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
         if (current.coord.i == map.goal_i && current.coord.j == map.goal_j) {
             break;
         }
-        add_successors_to_opened(current, opened, options, map);
+        add_successors_to_opened(current, opened, closed, options, map);
     }
 
     if (current.coord.i == map.goal_i && current.coord.j == map.goal_j) {
@@ -223,16 +222,22 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
                               });
         prev->parent = &(*(path->List.begin()));
         finish_time = std::chrono::high_resolution_clock::now();
-        // Supposed that only horizontal or diagonal moves allowed
+
         auto point_path = new NodeList;
         Node node;
         for (auto it = path->List.begin(); it != path->List.end(); ++it) {
             node = *it;
             if (it != path->List.begin()) {
-                add_segment_to_path(*(node.parent), node, *point_path, options);
+                if (is_any_angle_search) {
+                    construct_line(*(node.parent), node, *point_path, options);
+                } else {
+                    add_segment_to_path(*(node.parent), node, *point_path, options);
+                }
             }
         }
         node.parent = &(*(point_path->List.rbegin()));
+        node.H = 0;
+        node.F = node.g = sresult.pathlength;
         point_path->List.push_back(node);
         sresult.hppath = path;
         sresult.lppath = point_path;
@@ -248,6 +253,7 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
     sresult.nodescreated = closed.size() + opened.size();
 
     auto foramated_viewed = new std::map<Node, bool>;
+    int i, j;
     for (auto it = opened.cbegin(); it != opened.cend(); ++it) {
         current = *it;
         i = current.coord.i;
@@ -311,3 +317,180 @@ double ISearch::heuristic(int i, int j, int goal_i, int goal_j, const Environmen
     return hweight * result;
 }
 
+double ISearch::euclid_distance(const vertex &from, const vertex &to, double linecost) const {
+    return linecost * std::sqrt(std::pow(from.i - to.i, 2) + std::pow(from.j - to.j, 2));
+}
+
+double ISearch::euclid_distance(const Node &from, const Node &to, double linecost) const {
+    return linecost * std::sqrt(std::pow(from.i - to.i, 2) + std::pow(from.j - to.j, 2));
+}
+
+
+bool ISearch::line_of_sight(const vertex &from, const vertex &to, const Map &map) const {
+    int i = from.i;
+    int j = from.j;
+    int finish_i = to.i;
+    int finish_j = to.j;
+    int d_i = finish_i - i;
+    int d_j = finish_j - j;
+    int s_i, s_j;
+    if (d_j < 0) {
+        d_j *= -1;
+        s_j = -1;
+    } else {
+        s_j = 1;
+    }
+
+    if (d_i < 0) {
+        d_i *= -1;
+        s_i = -1;
+    } else {
+        s_i = 1;
+    }
+
+    int f = 0;
+    if (d_i > d_j) {
+        while (i != finish_i) {
+            f += d_j;
+            if (f >= d_i) {
+                if (map.CellIsObstacle(i + (s_i - 1) / 2, j + (s_j - 1) / 2)) {
+                    return false;
+                }
+                j += s_j;
+                f -= d_i;
+            }
+            if (f != 0 && map.CellIsObstacle(i + (s_i - 1) / 2, j + (s_j - 1) / 2)) {
+                return false;
+            }
+            if (d_j == 0 && map.CellIsObstacle(i + (s_i - 1) / 2, j) && map.CellIsObstacle(i + (s_i - 1) / 2, j - 1)) {
+                return false;
+            }
+            i += s_i;
+        }
+    } else {
+        while (j != finish_j) {
+            f += d_i;
+            if (f >= d_j) {
+                if (map.CellIsObstacle(i + (s_i - 1) / 2, j + (s_j - 1) / 2)) {
+                    return false;
+                }
+                i += s_i;
+                f -= d_j;
+            }
+            if (f != 0 && map.CellIsObstacle(i + (s_i - 1) / 2, j + (s_j - 1) / 2)) {
+                return false;
+            }
+            if (d_i == 0 && map.CellIsObstacle(i, j + (s_j - 1) / 2) && map.CellIsObstacle(i - 1, j + (s_j - 1) / 2)) {
+                return false;
+            }
+            j += s_j;
+        }
+    }
+    return true;
+}
+
+void ISearch::construct_line(const Node &from, const Node &to, NodeList &out, const EnvironmentOptions &options) const {
+    int i = from.i;
+    int j = from.j;
+    int finish_i = to.i;
+    int finish_j = to.j;
+    int d_i = finish_i - i;
+    int d_j = finish_j - j;
+    int s_i, s_j;
+    if (d_j < 0) {
+        d_j *= -1;
+        s_j = -1;
+    } else {
+        s_j = 1;
+    }
+
+    if (d_i < 0) {
+        d_i *= -1;
+        s_i = -1;
+    } else {
+        s_i = 1;
+    }
+
+    int f = 0;
+    Node node;
+    if (d_i > d_j) {
+        while (i != finish_i) {
+            f += d_j;
+            if (f >= d_i) {
+
+                j += s_j;
+                f -= d_i;
+            }
+            if (f != 0) {
+                node.i = i + (s_i - 1) / 2;
+                node.j = j + (s_j - 1) / 2;
+                node.parent = &(*(out.List.rbegin()));
+                node.g = node.parent->g + euclid_distance(node, *(node.parent), options.linecost);
+                node.H = heuristic(node.i, node.j, node.parent->i, node.parent->j, options);
+                node.F = node.g + node.H;
+                out.List.push_back(node);
+            }
+            if (d_j == 0) {
+                node.i = i + (s_i - 1) / 2;
+                node.j = j;
+                node.parent = &(*(out.List.rbegin()));
+                node.g = node.parent->g + euclid_distance(node, *(node.parent), options.linecost);
+                node.H = heuristic(node.i, node.j, node.parent->i, node.parent->j, options);
+                node.F = node.g + node.H;
+                out.List.push_back(node);
+
+                node.j = j - 1;
+                node.parent = &(*(out.List.rbegin()));
+                node.g = node.parent->g + euclid_distance(node, *(node.parent), options.linecost);
+                node.H = heuristic(node.i, node.j, node.parent->i, node.parent->j, options);
+                node.F = node.g + node.H;
+                out.List.push_back(node);
+            }
+            i += s_i;
+        }
+    } else {
+        while (j != finish_j) {
+            f += d_i;
+            if (f >= d_j) {
+
+                node.i = i + (s_i - 1) / 2;
+                node.j = j + (s_j - 1) / 2;
+                node.parent = &(*(out.List.rbegin()));
+                node.g = node.parent->g + euclid_distance(node, *(node.parent), options.linecost);
+                node.H = heuristic(node.i, node.j, node.parent->i, node.parent->j, options);
+                node.F = node.g + node.H;
+                out.List.push_back(node);
+
+                i += s_i;
+                f -= d_j;
+            }
+            if (f != 0) {
+                node.i = i + (s_i - 1) / 2;
+                node.j = j + (s_j - 1) / 2;
+                node.parent = &(*(out.List.rbegin()));
+                node.g = node.parent->g + euclid_distance(node, *(node.parent), options.linecost);
+                node.H = heuristic(node.i, node.j, node.parent->i, node.parent->j, options);
+                node.F = node.g + node.H;
+                out.List.push_back(node);
+            }
+            if (d_i == 0) {
+                node.i = i;
+                node.j = j + (s_j - 1) / 2;
+                node.parent = &(*(out.List.rbegin()));
+                node.g = node.parent->g + euclid_distance(node, *(node.parent), options.linecost);
+                node.H = heuristic(node.i, node.j, node.parent->i, node.parent->j, options);
+                node.F = node.g + node.H;
+                out.List.push_back(node);
+
+                node.i = i - 1;
+                node.j = j + (s_j - 1) / 2;
+                node.parent = &(*(out.List.rbegin()));
+                node.g = node.parent->g + euclid_distance(node, *(node.parent), options.linecost);
+                node.H = heuristic(node.i, node.j, node.parent->i, node.parent->j, options);
+                node.F = node.g + node.H;
+                out.List.push_back(node);
+            }
+            j += s_j;
+        }
+    }
+}

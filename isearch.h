@@ -25,11 +25,12 @@ protected:
     int sizelimit; //����������� �� ������ OPEN
     double hweight; //��� ���������
     int breakingties; //�������� ������ ��������� ������� �� OPEN, ����� F-�������� �����
+    bool is_any_angle_search = false;
 
     virtual double heuristic(int i, int j, int goal_i, int goal_j, const EnvironmentOptions &options) const;
 
-    virtual void add_successors_to_opened(const extNode &pos,
-                                          minqueue &opened,
+    virtual void add_successors_to_opened(const extNode &pos, minqueue &opened,
+                                          const std::map<vertex, std::pair<double, vertex>> &closed,
                                           const EnvironmentOptions &options, const Map &map) = 0;
 
     bool is_diagonal_move(int direction) const;
@@ -58,6 +59,14 @@ protected:
     int distance(const vertex &from, const vertex &to) const;
 
     void add_segment_to_path(const Node begin, const Node end, NodeList &path, const EnvironmentOptions &options) const;
+
+    double euclid_distance(const vertex &from, const vertex &to, double linecost) const;
+
+    double euclid_distance(const Node &from, const Node &to, double linecost) const;
+
+    bool line_of_sight(const vertex &from, const vertex &to, const Map &map) const;
+
+    void construct_line(const Node &from, const Node &to, NodeList& out, const EnvironmentOptions &options) const;
 };
 
 #endif
