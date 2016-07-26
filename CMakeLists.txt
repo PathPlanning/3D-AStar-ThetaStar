@@ -31,6 +31,13 @@ set(SOURCE_FILES
         xmllogger.h
         minqueue.cpp
         minqueue.h
-        Theta_star.cpp Theta_star.h)
+        JPS.cpp
+        JPS.h
+        astar.cpp
+        astar.h
+        Theta_star.cpp
+        Theta_star.h
+        BFS.cpp
+        BFS.h)
 
 add_executable(HeuristicSearch ${SOURCE_FILES})

@@ -1,6 +1,9 @@
 #include "mission.h"
 #include "xmllogger.h"
+#include "astar.h"
+#include "JPS.h"
 #include "Theta_star.h"
+#include "BFS.h"
 
 Mission::Mission()//� config � map - ���� ���� ������������ �� ���������, �� ����� �� ���� ����������������.
 {
@@ -51,7 +54,22 @@ void Mission::createEnvironmentOptions()
 
 void Mission::createSearch()
 {
-    search = new Theta_star(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
+    if (config.SearchParams[CN_SP_ST] == CN_SP_ST_JP_SEARCH) {
+        if (options.allowdiagonal) {
+            search = new JPS(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
+        } else {
+            search = new orthogonalJPS(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
+        }
+    } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_DIJK) {
+        search = new Dijkstra(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT],
+                              config.SearchParams[CN_SP_SL]);
+    } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_BFS) {
+        search = new BFS(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
+    } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_TH) {
+        search = new Theta_star(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
+    } else {
+        search = new Astar(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
+    }
 }
 
 void Mission::startSearch()

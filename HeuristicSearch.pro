@@ -29,7 +29,9 @@ SOURCES += \
     asearch.cpp \
     environmentoptions.cpp \
     minqueue.cpp \
-    astar.cpp
+    astar.cpp \
+    BFS.cpp \
+    Theta_star.cpp
 
 HEADERS += \
     tinyxml.h \
@@ -47,4 +49,6 @@ HEADERS += \
     searchresult.h \
     environmentoptions.h \
     minqueue.h \
-    astar.h
+    astar.h \
+    BFS.h \
+    Theta_star.h

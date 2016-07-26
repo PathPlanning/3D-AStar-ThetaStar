@@ -4,6 +4,7 @@ JPS::JPS(double w, int BT, int SL) {
     hweight = w;
     breakingties = BT;
     sizelimit = SL;
+    is_any_angle_search = false;
 }
 
 std::pair<int, int> JPS::corner_directions(int direction) const {
@@ -179,6 +180,7 @@ bool JPS::has_forced_neigbour(const vertex &x, int direction, bool squeeze, cons
 
 void JPS::add_successors_to_opened(const extNode &pos,
                                    minqueue &opened,
+                                   const std::map<vertex, std::pair<double, vertex>> &,
                                    const EnvironmentOptions &options,
                                    const Map &map) {
     int i = pos.coord.i;
@@ -316,6 +318,7 @@ bool orthogonalJPS::is_pruned_neigbour(const vertex &x, const vertex &neighbour,
 
 void orthogonalJPS::add_successors_to_opened(const extNode &pos,
                                              minqueue &opened,
+                                             const std::map<vertex, std::pair<double, vertex>> &,
                                              const EnvironmentOptions &options,
                                              const Map &map) {
     int i = pos.coord.i;
