@@ -3,7 +3,6 @@
 
 #include "gl_const.h"
 #include "isearch.h"
-#include "minqueue.h"
 
 class Astar : public ISearch {
 public:
@@ -11,10 +10,9 @@ public:
     Astar(double weight, int BT, int SL);
 
 protected:
-    virtual void add_successors_to_opened(const extNode &pos,
-                                          minqueue &opened,
-                                          const std::map<vertex, std::pair<double, vertex>> &,
-                                          const EnvironmentOptions &options, const Map &map);
+    virtual void recovery_primary_path(Node *finish, int start_i, int start_j) override;
+
+    virtual void recovery_secondary_path(Node *finish, int start_i, int start_j, const EnvironmentOptions &options) override;
 };
 
 class Dijkstra : public Astar {

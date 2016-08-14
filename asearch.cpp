@@ -1,5 +1,4 @@
 #include "mission.h"
-#include "minqueue.h"
 #include <iostream>
 
 int main(int argc, char* argv[])

@@ -102,7 +102,9 @@ void Mission::saveSearchResultsToLog(){
     {
         logger->writeToLogPath(*sr.lppath);
         logger->writeToLogHPpath(*sr.hppath);
-        logger->writeToLogViewed(*sr.viewed);
+        if (sr.viewed != nullptr) {
+            logger->writeToLogViewed(*sr.viewed);
+        }
         logger->writeToLogMap(map,*sr.lppath);
     }
     else

@@ -47,7 +47,7 @@ namespace std {
             size_t seed = 0;
             seed ^= std::hash<int>()(x.i) + 0x9e3779b9
                                 + (seed << 6) + (seed >> 2);
-            seed ^= std::hash<int>()(x.i) + 0x9e3779b9
+            seed ^= std::hash<int>()(x.j) + 0x9e3779b9
                                   + (seed << 6) + (seed >> 2);
 
             return seed;

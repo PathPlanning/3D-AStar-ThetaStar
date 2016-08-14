@@ -28,7 +28,7 @@ SOURCES += \
     JPS.cpp \
     asearch.cpp \
     environmentoptions.cpp \
-    minqueue.cpp \
+    prior_queue.cpp \
     astar.cpp \
     BFS.cpp \
     Theta_star.cpp
@@ -48,7 +48,7 @@ HEADERS += \
     JPS.h \
     searchresult.h \
     environmentoptions.h \
-    minqueue.h \
+    prior_queue.h \
     astar.h \
     BFS.h \
     Theta_star.h

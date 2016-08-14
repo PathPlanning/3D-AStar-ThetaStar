@@ -2,17 +2,14 @@
 #define HEURISTICSEARCH_BFS_H
 
 
-#include "isearch.h"
+#include "astar.h"
 
-class BFS : public ISearch {
+class BFS : public Astar {
 public:
     BFS(double weight, int BT, int SL);
 
 protected:
-    virtual void add_successors_to_opened(const extNode &pos,
-                                          minqueue &opened,
-                                          const std::map<vertex, std::pair<double, vertex>> &,
-                                          const EnvironmentOptions &options, const Map &map);
+    virtual std::list<Node> find_successors(Node *current, const Map &map, const EnvironmentOptions &options) const;
 };
 
 

@@ -29,15 +29,16 @@ set(SOURCE_FILES
         tinyxmlparser.cpp
         xmllogger.cpp
         xmllogger.h
-        minqueue.cpp
-        minqueue.h
-        JPS.cpp
-        JPS.h
+        prior_queue.cpp
+        prior_queue.h
         astar.cpp
         astar.h
+        JPS.cpp
+        JPS.h
         Theta_star.cpp
         Theta_star.h
         BFS.cpp
         BFS.h)
+
 
 add_executable(HeuristicSearch ${SOURCE_FILES})
