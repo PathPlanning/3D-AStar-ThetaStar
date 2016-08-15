@@ -42,7 +42,7 @@ bool Theta_star::line_of_sight(const Node &from, const Node &to, const Map &map)
             }
             error += delta_i;
             if ((error << 1) > delta_j) {
-                j += step_j;
+                i += step_i;
                 error -= delta_j;
             }
         }
@@ -80,7 +80,7 @@ Theta_star::construct_line(const Node &from, const Node &to, NodeList &out, cons
             out.List.push_back(current);
             error += delta_i;
             if ((error << 1) > delta_j) {
-                j += step_j;
+                i += step_i;
                 error -= delta_j;
             }
         }
@@ -89,9 +89,9 @@ Theta_star::construct_line(const Node &from, const Node &to, NodeList &out, cons
 
 void Theta_star::improve_parent(Node *current, const Map &map, const EnvironmentOptions &options) const {
     Node *potential_parent = current->parent->parent;
-    if (euclid_distance(*potential_parent, *current, options.linecost) < current->g &&
-        line_of_sight(*potential_parent, *current, map)) {
-        current->g = euclid_distance(*potential_parent, *current, options.linecost);
+    double potential_g_val = potential_parent->g + euclid_distance(*potential_parent, *current, options.linecost);
+    if (potential_g_val < current->g && line_of_sight(*potential_parent, *current, map)) {
+        current->g = potential_g_val;
         current->F = current->g + current->H;
         current->parent = potential_parent;
     }

@@ -49,8 +49,8 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
         }
         successors = find_successors(current_ptr, map, options);
         for (auto node : successors) {
-            improve_parent(&node, map, options);
             if (closed.find({node.i, node.j}) == closed.end()) {
+                improve_parent(&node, map, options);
                 opened.push(node);
             }
         }

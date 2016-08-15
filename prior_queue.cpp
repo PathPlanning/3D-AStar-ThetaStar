@@ -4,7 +4,7 @@
 
 
 //Common class
-IQueue::IQueue(int BT = CN_SP_BT_GMAX) : breakingtie(BT), _size(0) {}
+IQueue::IQueue(int BT) : breakingtie(BT), _size(0) {}
 
 bool IQueue::less(const Node &x, const Node &y) const {
     if (x.F < y.F) {
@@ -100,8 +100,8 @@ void map_queue::const_iterator::generate_val() {
     val.parent = it->second.parent;
 }
 
-map_queue::const_iterator::const_iterator(const typename std::map<vertex, croppedNode>::const_iterator &init) : it(
-        init) {
+map_queue::const_iterator::const_iterator(const typename std::map<vertex, croppedNode>::const_iterator &init) :
+        it(init) {
     generate_val();
 }
 
@@ -145,7 +145,7 @@ void coord_list_queue::pop() {
     }
     data[cached_min].pop_front();
     --_size;
-    CacheMinimum();
+    cached_min = data.size();
 }
 
 bool coord_list_queue::push(const Node &node) {
@@ -154,25 +154,19 @@ bool coord_list_queue::push(const Node &node) {
     auto end = data[pos].end();
     auto it_to_ins = end;
     auto found = end;
-    auto prev = begin;
-    for (auto it = begin; it != end; ++it) {
-        if (it_to_ins == end &&
-            (it == begin || less(*prev, node)) && !less(*it, node)) {
+    for (auto it = begin; it != end && (it_to_ins == end || found == end); ++it) {
+        if (it_to_ins == end && !less(*it, node)) {
             it_to_ins = it;
         }
         if (it->j == node.j && it->i == node.i) {
             found = it;
         }
-        if (it != begin) {
-            ++prev;
-        }
     }
 
-    bool inserted = false;
     if (found == end) {
         data[pos].insert(it_to_ins, node);
         ++_size;
-        inserted = true;
+        return true;
     } else if (node.g < found->g) {
         if (found == it_to_ins) {
             *found = node;
@@ -180,22 +174,24 @@ bool coord_list_queue::push(const Node &node) {
             data[pos].erase(found);
             data[pos].insert(it_to_ins, node);
         }
-        inserted = true;
+        return true;
     }
-    if (inserted && cached_min != data.size() && less(node, *data[cached_min].begin())) {
-        cached_min = pos;
-    }
-    return inserted;
+    return false;
 }
 
 void coord_list_queue::CacheMinimum() const {
     Node tmp;
+    bool found;
     tmp.F = std::numeric_limits<double>::infinity();
     for (size_t i = 0; i < data.size(); ++i) {
         if (!data[i].empty() && less(*(data[i].begin()), tmp)) {
+            found = true;
             tmp = *(data[i].begin());
             cached_min = i;
         }
+    }
+    if (!found) {
+        cached_min = data.size();
     }
 }
 

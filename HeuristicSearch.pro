@@ -8,7 +8,7 @@ TARGET = HeuristicSearch
 CONFIG   += console
 CONFIG   -= app_bundle
 TEMPLATE = app
-QMAKE_CXXFLAGS += -std=c++11 -o2
+QMAKE_CXXFLAGS += -std=c++11 -O4
 
 win32 {
 QMAKE_LFLAGS += -static -static-libgcc -static-libstdc++
