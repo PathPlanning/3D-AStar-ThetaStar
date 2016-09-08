@@ -81,7 +81,7 @@ void JP_Search::findJP(int move_i, int move_j, Node curNode, const Map &map, std
                     findOK = true;
         }
     }
-    if(findOK && close.find(curNode.i*map.width+curNode.j)==close.end())
+    if(findOK && close.find(curNode)==close.end())
     {
         successors.push_front(curNode);
         return;

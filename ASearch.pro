@@ -25,13 +25,9 @@ SOURCES += \
     mission.cpp \
     map.cpp \
     list.cpp \
-    dijkstra.cpp \
     config.cpp \
-    bfs.cpp \
     astar.cpp \
     asearch.cpp \
-    jp_search.cpp \
-    theta.cpp \
     environmentoptions.cpp
 
 HEADERS += \
@@ -45,11 +41,7 @@ HEADERS += \
     map.h \
     ilogger.h \
     list.h \
-    dijkstra.h \
     config.h \
-    bfs.h \
     astar.h \
     searchresult.h \
-    jp_search.h \
-    theta.h \
     environmentoptions.h
