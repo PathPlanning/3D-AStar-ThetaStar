@@ -13,7 +13,7 @@ class Config
         bool getConfig(const char *FileName);
 
     public:
-        double*         SearchParams;
+        double*          SearchParams;
         std::string*    LogParams;
         unsigned int    N;
 

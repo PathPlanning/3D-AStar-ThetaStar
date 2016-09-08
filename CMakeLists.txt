@@ -1,44 +1,44 @@
-cmake_minimum_required(VERSION 3.2)
-project(HeuristicSearch)
+cmake_minimum_required(VERSION 3.6)
+project(Astar_heights)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O4 -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O4")
 
 set(SOURCE_FILES
-        asearch.cpp
-        config.cpp
-        config.h
-        environmentoptions.cpp
-        environmentoptions.h
-        gl_const.h
-        ilogger.h
-        isearch.cpp
-        isearch.h
-        list.cpp
-        list.h
-        map.cpp
-        map.h
-        mission.cpp
-        mission.h
-        node.h
-        searchresult.h
-        tinystr.cpp
-        tinystr.h
-        tinyxml.cpp
-        tinyxml.h
-        tinyxmlerror.cpp
         tinyxmlparser.cpp
+        tinyxmlerror.cpp
+        tinyxml.cpp
+        tinystr.cpp
+        node.cpp
         xmllogger.cpp
-        xmllogger.h
-        prior_queue.cpp
-        prior_queue.h
+        isearch.cpp
+        mission.cpp
+        map.cpp
+        list.cpp
+        dijkstra.cpp
+        config.cpp
+        bfs.cpp
         astar.cpp
+        asearch.cpp
+        jp_search.cpp
+        theta.cpp
+        environmentoptions.cpp
+        tinyxml.h
+        tinystr.h
+        node.h
+        gl_const.h
+        xmllogger.h
+        isearch.h
+        mission.h
+        map.h
+        ilogger.h
+        list.h
+        dijkstra.h
+        config.h
+        bfs.h
         astar.h
-        JPS.cpp
-        JPS.h
-        Theta_star.cpp
-        Theta_star.h
-        BFS.cpp
-        BFS.h)
-
-
-add_executable(HeuristicSearch ${SOURCE_FILES})
+        searchresult.h
+        jp_search.h
+        theta.h
+        environmentoptions.h
+        )
+add_executable(Astar_heights ${SOURCE_FILES})

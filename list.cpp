@@ -13,8 +13,8 @@ NodeList::~NodeList(void)
 
 bool NodeList::find(int x, int y)
 {
-    std::list<Node>::iterator iter = List.begin();
-    for(; iter != List.end(); ++iter)
+    std::list<Node>::iterator iter = List.end();
+    for(; iter != List.begin(); --iter)
     {
         if((iter->i == x) && (iter->j == y))
         {
@@ -31,7 +31,7 @@ bool NodeList::find(int x, int y)
 std::list<Node>::iterator NodeList::find_i(int x, int y)
 {
     std::list<Node>::iterator iter = List.begin();
-    for(; iter != List.end(); ++iter)
+    for(iter = List.begin(); iter != List.end(); ++iter)
     {
         if((iter->i == x) && (iter->j == y))
         {

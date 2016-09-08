@@ -56,7 +56,19 @@ bool Config::getConfig(const char* FileName)
         value = element -> GetText();
     std::transform(value.begin(), value.end(), value.begin(), ::tolower);
 
-    if(value==CNS_SP_ST_ASTAR || value==CNS_SP_ST_JP_SEARCH || value==CNS_SP_ST_TH || value == CNS_SP_ST_BFS || value == CNS_SP_ST_DIJK)
+    if (value==CNS_SP_ST_BFS)
+    {
+        N = 6;
+        SearchParams = new double [N];
+        SearchParams[CN_SP_ST] = CN_SP_ST_BFS;
+    }
+    else if (value==CNS_SP_ST_DIJK)
+    {
+        N = 6;
+        SearchParams = new double [N];
+        SearchParams[CN_SP_ST] = CN_SP_ST_DIJK;
+    }
+    else if (value==CNS_SP_ST_ASTAR || value==CNS_SP_ST_JP_SEARCH || value==CNS_SP_ST_TH)
     {
         N = 11;
         SearchParams = new double [N];
@@ -65,10 +77,6 @@ bool Config::getConfig(const char* FileName)
             SearchParams[CN_SP_ST] = CN_SP_ST_JP_SEARCH;
         if (value==CNS_SP_ST_TH)
             SearchParams[CN_SP_ST] = CN_SP_ST_TH;
-        if (value==CNS_SP_ST_BFS)
-            SearchParams[CN_SP_ST] = CN_SP_ST_BFS;
-        if (value==CNS_SP_ST_DIJK)
-            SearchParams[CN_SP_ST] = CN_SP_ST_DIJK;
         element = algorithm -> FirstChildElement(CNS_TAG_HW);
         if (!element) {
             std::cout << "Warning! No '"<< CNS_TAG_HW <<"' tag found in algorithm section." << std::endl;
@@ -169,8 +177,7 @@ bool Config::getConfig(const char* FileName)
     else
     {
         std::cout << "Error! Value of '"<< CNS_TAG_ST <<"' tag (algorithm name) is not correctly specified." << std::endl;
-        std::cout << "Supported algorithm's names are: '"<< CNS_SP_ST_BFS << "', '" << CNS_SP_ST_DIJK << "', '"
-        << CNS_SP_ST_ASTAR << "', '" << CNS_SP_ST_TH << "', '" << CNS_SP_ST_JP_SEARCH << "'."  << std::endl;
+        std::cout << "Supported algorithm's names are: '"<< CNS_SP_ST_BFS << "', '" << CNS_SP_ST_DIJK << "', '" << CNS_SP_ST_ASTAR << "', '" << CNS_SP_ST_JP_SEARCH << "'."  << std::endl;
         return false;
     }
 
@@ -252,6 +259,40 @@ bool Config::getConfig(const char* FileName)
         }
     }
     SearchParams[CN_SP_DC]=SearchParams[CN_SP_LC]*sqrt(2);
+
+    //TODO парсить diagonalcost с проверкой (в случае Theta*), что diagonalcost = sqrt(2) * linecost
+    /*element = algorithm -> FirstChildElement(CNS_TAG_DC);
+    if (!element)
+    {
+        std::cout << "Warning! No '"<< CNS_TAG_DC <<"' element found in XML file." << std::endl;
+        std::cout << "Value of '"<< CNS_TAG_DC <<"' was defined to default - "<< CN_MC_DIAG << std::endl;
+        SearchParams[CN_SP_DC] = CN_MC_DIAG;
+    }
+    else
+    {
+        stream << element->GetText();
+        stream >> SearchParams[CN_SP_DC];
+        stream.str("");
+        stream.clear();
+
+        if (SearchParams[CN_SP_DC]<=0)
+        {
+            std::cout << "Warning! Value of '" << CNS_TAG_DC <<"' is not correctly specified." << std::endl;
+            std::cout << "Value of '"<< CNS_TAG_DC <<"' was defined to default - "<< CN_MC_DIAG << std::endl;
+            SearchParams[CN_SP_DC] = CN_MC_DIAG;
+            if(SearchParams[CN_SP_ST]==CN_SP_ST_TH)
+                SearchParams[CN_SP_DC]=SearchParams[CN_SP_LC]*sqrt(2);
+        }
+    }
+
+    if(SearchParams[CN_SP_DC]<=SearchParams[CN_SP_LC])
+    {
+        std::cout << "Warning! Value of '" << CNS_TAG_DC << "' should be greater than value of '"<< CNS_TAG_LC <<"'." << std::endl;
+        std::cout << "Value of '"<< CNS_TAG_DC <<"' was defined to default - "<< CN_MC_DIAG << std::endl;
+        std::cout << "Value of '"<< CNS_TAG_LC <<"' was defined to default - "<< CN_MC_LINE << std::endl;
+        SearchParams[CN_SP_LC] = CN_MC_LINE;
+        SearchParams[CN_SP_DC] = CN_MC_DIAG;
+    }*/
 
     element = algorithm -> FirstChildElement(CNS_TAG_AD);
     if (!element)

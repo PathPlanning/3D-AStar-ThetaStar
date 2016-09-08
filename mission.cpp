@@ -1,11 +1,13 @@
 #include "mission.h"
-#include "xmllogger.h"
+//#include "jp_search.h"
 #include "astar.h"
-#include "JPS.h"
-#include "Theta_star.h"
-#include "BFS.h"
+//#include "bfs.h"
+//#include "dijkstra.h"
+//#include "theta.h"
+#include "xmllogger.h"
+#include "gl_const.h"
 
-Mission::Mission()//� config � map - ���� ���� ������������ �� ���������, �� ����� �� ���� ����������������.
+Mission::Mission()//у config и map - есть свои конструкторы по умолчанию, их здесь не надо инициализировать.
 {
     logger = NULL;
     search = NULL;
@@ -54,22 +56,28 @@ void Mission::createEnvironmentOptions()
 
 void Mission::createSearch()
 {
-    if (config.SearchParams[CN_SP_ST] == CN_SP_ST_JP_SEARCH) {
-        if (options.allowdiagonal) {
-            search = new JPS(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
-        } else {
-            search = new orthogonalJPS(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
-        }
-    } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_DIJK) {
-        search = new Dijkstra(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT],
-                              config.SearchParams[CN_SP_SL]);
-    } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_BFS) {
-        search = new BFS(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
-    } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_TH) {
-        search = new Theta_star(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
-    } else {
-        search = new Astar(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL]);
+    search = new Astar(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL], map.height);
+    /*if (config.SearchParams[CN_SP_ST] == CN_SP_ST_BFS)
+    {
+        search = new BFS(map.height);
     }
+    else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_DIJK)
+    {
+        search = new Dijkstra(map.height);
+    }
+    else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_ASTAR)
+    {
+        search = new Astar(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL], map.height);
+    }
+    else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_JP_SEARCH)
+    {
+        search=new JP_Search(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL], map.height);
+    }
+    else if (config.SearchParams[CN_SP_ST]== CN_SP_ST_TH)
+    {
+        search = new Theta (config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL], map.height);
+    }*/
+
 }
 
 void Mission::startSearch()
@@ -95,16 +103,13 @@ void Mission::printSearchResultsToConsole()
 }
 
 void Mission::saveSearchResultsToLog(){
-    //������ - ��� ���������� ������ ��� ��� ��� ���
+    //Логгер - сам разберется писать ему лог или нет
     logger->writeToLogSummary(sr.numberofsteps, sr.nodescreated, sr.pathlength, sr.time);
 
     if (sr.pathfound)
     {
         logger->writeToLogPath(*sr.lppath);
         logger->writeToLogHPpath(*sr.hppath);
-        if (sr.viewed != nullptr) {
-            logger->writeToLogViewed(*sr.viewed);
-        }
         logger->writeToLogMap(map,*sr.lppath);
     }
     else

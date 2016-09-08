@@ -1,49 +1,43 @@
 #ifndef ISEARCH_H
 #define ISEARCH_H
-
 #include "list.h"
 #include "map.h"
 #include "ilogger.h"
 #include "searchresult.h"
 #include "environmentoptions.h"
-#include "node.h"
-#include "prior_queue.h"
-
-#include <unordered_map>
+#include <unordered_set>
+#include <iostream>
+#include <vector>
 #include <math.h>
+#include <limits>
+#include <chrono>
+class ISearch
+{
+    public:
+        ISearch();
+        virtual ~ISearch(void);
 
-class ISearch {
-public:
-    ISearch();
+        SearchResult startSearch(ILogger *Logger, const Map &Map, const EnvironmentOptions &options);
+        Node findMin(int size);
+        double MoveCost(int start_i, int start_j, int fin_i, int fin_j, const EnvironmentOptions &options);
 
-    //virtual ~ISearch(void);
+    protected:
+        virtual void addOpen(Node newNode) = 0; //каждый поиск по своему добавляет вершины в список OPEN
+        virtual double computeHFromCellToCell(int start_i, int start_j, int fin_i, int fin_j, const EnvironmentOptions &options) = 0; //для Дейкстры и BFS этот метод всегда возвращает ноль
+        virtual std::list<Node> findSuccessors(Node curNode, const Map &map, const EnvironmentOptions &options);//метод, который ищет соседей текущей вершины, удовлетворяющие параметрам поиска
+        virtual void makePrimaryPath(Node curNode);//строит путь по ссылкам на родителя
+        virtual void makeSecondaryPath(const Map &map, Node curNode);//разбивает найденный путь на секции, содержащие только прямые участки
+        virtual Node resetParent(Node current, Node parent, const Map &map, const EnvironmentOptions &options) { return current;}//меняет родителя, нужен для алгоритма Theta*
+        virtual bool stopCriterion();
+        SearchResult    sresult; //результат поиска
+        NodeList         lppath, hppath; //списки OPEN, CLOSE и путь
+        Node lastnode;
+        std::unordered_set<Node> close;
+        NodeList *open;
+        int     openSize;
+        int     sizelimit; //ограничение на размер OPEN
+        float   hweight; //вес эвристики
+        int     breakingties; //критерий выбора очередной вершины из OPEN, когда F-значений равны
 
-    SearchResult startSearch(ILogger *Logger, const Map &map, const EnvironmentOptions &options);
-
-protected:
-    SearchResult sresult;
-    int sizelimit; //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ OPEN
-    double hweight; //пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-    int breakingties; //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ OPEN, пїЅпїЅпїЅпїЅпїЅ F-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
-
-    virtual double heuristic(int i, int j, int goal_i, int goal_j, const EnvironmentOptions &options) const;
-
-    virtual std::list<Node> find_successors(Node *current, const Map &map, const EnvironmentOptions &options) const;
-
-    virtual void improve_parent(Node *current, const Map &map, const EnvironmentOptions &options) const;
-
-    virtual void recovery_primary_path(Node *finish, int start_i, int start_j) = 0;
-
-    virtual void recovery_secondary_path(Node *finish, int start_i, int start_j, const EnvironmentOptions &options) = 0;
-
-    /*
-    * Returns direction between point according to gl_const
-    */
-    int direction(const vertex &from, const vertex &to) const;
-
-    int direction(int delta_i, int delta_j) const;
-
-    int direction(const Node &from, const Node &to) const;
 };
-
 #endif

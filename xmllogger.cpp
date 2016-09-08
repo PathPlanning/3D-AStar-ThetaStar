@@ -3,10 +3,8 @@
 #include "tinyxml.h"
 #include "gl_const.h"
 #include "node.h"
-
 #include <sstream>
 #include <iostream>
-#include <map>
 
 XmlLogger::~XmlLogger()
 {
@@ -156,6 +154,7 @@ void XmlLogger::writeToLogMap(const Map& map, const NodeList& path)
 
 void XmlLogger::writeToLogOpenClose(const NodeList *open, const std::unordered_map<int, Node>& close, int size)
 {
+
     if (loglevel == CN_SP_LL_NOLOG || loglevel == CN_SP_LL_SMALLLOG) return;
     int iterate = 0;
     TiXmlElement *element = new TiXmlElement(CNS_TAG_STEP);
@@ -207,7 +206,7 @@ void XmlLogger::writeToLogOpenClose(const NodeList *open, const std::unordered_m
     }
     for(int i=0; i<size; i++)
         if(open[i].List.size()>0)
-        for (std::list<Node> ::const_iterator it  = open[i].List.begin(); it != open[i].List.end(); it++)
+        for (std::list<Node> ::const_iterator it  = open[i].List.begin(); it != open[i].List.end(); ++it)
         {
             if(it!=open[exc].List.begin())
             {
@@ -229,42 +228,19 @@ void XmlLogger::writeToLogOpenClose(const NodeList *open, const std::unordered_m
     lowlevel -> InsertEndChild(*element);
     child = lowlevel -> LastChild();
 
-    for (std::unordered_map<int,Node>::const_iterator it  = close.begin(); it != close.end(); it++)
+    for (std::unordered_map<int,Node>::const_iterator it  = close.begin(); it != close.end(); ++it)
     {
         element = new TiXmlElement(CNS_TAG_POINT);
         element -> SetAttribute(CNS_TAG_ATTR_X, it->second.j);
         element -> SetAttribute(CNS_TAG_ATTR_Y, it->second.i);
+        element -> SetAttribute(CNS_TAG_ATTR_Z, it->second.z);
         element -> SetDoubleAttribute(CNS_TAG_ATTR_F, it->second.F);
         element -> SetDoubleAttribute(CNS_TAG_ATTR_G, it->second.g);
         if (it->second.g > 0)
         {
             element -> SetAttribute(CNS_TAG_ATTR_PARX, it->second.parent -> j);
             element -> SetAttribute(CNS_TAG_ATTR_PARY, it->second.parent -> i);
-        }
-        child -> InsertEndChild(*element);
-    }
-}
-
-void XmlLogger::writeToLogViewed(const std::map<Node, bool> &viewed) {
-    if (loglevel == CN_SP_LL_NOLOG || loglevel != CN_SP_LL_SMALLLOG || viewed.empty()) return;
-    TiXmlNode *child = 0, *lowlevel = doc->FirstChild(CNS_TAG_ROOT);
-    lowlevel = lowlevel -> FirstChild(CNS_TAG_LOG);
-
-    auto element = new TiXmlElement (CNS_TAG_VIEWED);
-    lowlevel -> InsertEndChild(*element);
-    child = lowlevel -> LastChild();
-
-    for (auto it  = viewed.begin(); it != viewed.end(); ++it)
-    {
-        element = new TiXmlElement(CNS_TAG_POINT);
-        element -> SetAttribute(CNS_TAG_ATTR_X, it->first.j);
-        element -> SetAttribute(CNS_TAG_ATTR_Y, it->first.i);
-        element -> SetDoubleAttribute(CNS_TAG_ATTR_F, it->first.F);
-        element -> SetDoubleAttribute(CNS_TAG_ATTR_G, it->first.g);
-        if (it->second) {
-            element -> SetAttribute("closed", 1);
-        } else {
-            element -> SetAttribute("opened", 1);
+            element -> SetAttribute(CNS_TAG_ATTR_PARZ, it->second.parent -> z);
         }
         child -> InsertEndChild(*element);
     }
@@ -272,7 +248,7 @@ void XmlLogger::writeToLogViewed(const std::map<Node, bool> &viewed) {
 
 void XmlLogger::writeToLogPath(const NodeList& path)
 {
-    if (loglevel == CN_SP_LL_NOLOG || path.List.size() == 0) return;
+    if (loglevel == CN_SP_LL_NOLOG || path.List.size()==0) return;
     int iterate = 0;
     TiXmlElement *element;
     TiXmlNode *lplevel = doc->FirstChild(CNS_TAG_ROOT);
@@ -283,6 +259,7 @@ void XmlLogger::writeToLogPath(const NodeList& path)
         element = new TiXmlElement(CNS_TAG_POINT);
         element -> SetAttribute(CNS_TAG_ATTR_X, it -> j);
         element -> SetAttribute(CNS_TAG_ATTR_Y, it -> i);
+        element -> SetAttribute(CNS_TAG_ATTR_Z, it -> z);
         element -> SetAttribute(CNS_TAG_ATTR_NUM, iterate);
         lplevel -> InsertEndChild(*element);
     }
@@ -290,7 +267,7 @@ void XmlLogger::writeToLogPath(const NodeList& path)
 
 void XmlLogger::writeToLogHPpath(const NodeList& hppath)
 {
-    if (loglevel == CN_SP_LL_NOLOG || hppath.List.size() == 0) return;
+    if (loglevel == CN_SP_LL_NOLOG || hppath.List.size()==0) return;
     int partnumber = 0;
     TiXmlElement *part;
     TiXmlElement *hplevel = doc->FirstChildElement(CNS_TAG_ROOT);
@@ -304,9 +281,11 @@ void XmlLogger::writeToLogHPpath(const NodeList& hppath)
         part -> SetAttribute(CNS_TAG_ATTR_NUM, partnumber);
         part -> SetAttribute(CNS_TAG_ATTR_STX, it->j);
         part -> SetAttribute(CNS_TAG_ATTR_STY, it->i);
+        part -> SetAttribute(CNS_TAG_ATTR_STZ, it->z);
         iter++;
         part -> SetAttribute(CNS_TAG_ATTR_FINX, iter->j);
         part -> SetAttribute(CNS_TAG_ATTR_FINY, iter->i);
+        part -> SetAttribute(CNS_TAG_ATTR_FINZ, iter->z);
         part -> SetDoubleAttribute(CNS_TAG_ATTR_LENGTH, iter->g - it->g);
         hplevel -> LinkEndChild(part);
         it++;

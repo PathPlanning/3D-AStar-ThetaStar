@@ -23,8 +23,8 @@ class Map
     public:
         int**   Grid;
         int     height, width;
-        int     start_i, start_j;
-        int     goal_i, goal_j;
+        int     start_i, start_j, start_h;
+        int     goal_i, goal_j, goal_h;
 };
 
 #endif
