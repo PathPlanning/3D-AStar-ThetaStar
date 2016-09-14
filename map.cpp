@@ -41,12 +41,24 @@ bool Map::CellIsTraversable(int i, int j) const {
     return Grid[i][j] == CN_GC_NOOBS;
 }
 
+bool Map::CellIsTraversable(int i, int j, int h) const {
+    return !CellIsObstacle(i, j, h);
+}
+
 bool Map::CellIsObstacle(int i, int j) const {
     return (Grid[i][j] != CN_GC_NOOBS);
 }
 
+bool Map::CellIsObstacle(int i, int j, int h) const {
+    return h < Grid[i][j];
+}
+
 bool Map::CellOnGrid(int i, int j) const {
     return (i < height && i >= 0 && j < width && j >= 0);
+}
+
+bool Map::CellOnGrid(int i, int j, int height) const {
+    return height >= 0 && CellOnGrid(i, j);
 }
 
 bool Map::getMap(const char *FileName) {
@@ -217,11 +229,11 @@ bool Map::getMap(const char *FileName) {
 
             // Start Z
         else if (value == CNS_TAG_STZ) {
-            if (hasSTZ) //Дубль. Старт-ИКС уже был.
+            if (hasSTZ) //Дубль. Старт-зет уже был.
             {
                 std::cout << "Warning! Duplicate '" << CNS_TAG_STZ << "' encountered." << std::endl;
                 std::cout << "Only first value of '" << CNS_TAG_STZ << "' =" << start_h << "will be used." << std::endl;
-            } else //Старт-Игрек еще не встречался (или встречался, но корявый), в общем - надо пытаться инициализировать
+            } else //Старт-зет еще не встречался (или встречался, но корявый), в общем - надо пытаться инициализировать
             {
                 if (!(stream >> start_h && start_h >= 0)) {
                     std::cout << "Warning! Invalid value of '" << CNS_TAG_STZ
@@ -292,8 +304,8 @@ bool Map::getMap(const char *FileName) {
         } else if (value == CNS_TAG_FINZ) { // Finish Z
             if (hasFINZ) //Дубль. Финиш-игрек уже был.
             {
-                std::cout << "Warning! Duplicate '" << CNS_TAG_FINY << "' encountered." << std::endl;
-                std::cout << "Only first value of '" << CNS_TAG_FINY << "' =" << goal_h << "will be used." << std::endl;
+                std::cout << "Warning! Duplicate '" << CNS_TAG_FINZ << "' encountered." << std::endl;
+                std::cout << "Only first value of '" << CNS_TAG_FINZ << "' =" << goal_h << "will be used." << std::endl;
             } else //Финиш-Игрек еще не встречался (или встречался, но корявый), в общем - надо пытаться инициализировать
             {
                 if (!(stream >> goal_h && goal_h >= 0)) {
@@ -307,7 +319,7 @@ bool Map::getMap(const char *FileName) {
                     hasFINZ = true;
             }
         }
-            //Закончили с Финиш-Игрек
+            //Закончили с Финиш-Зет
 
             //Грид
         else if (value == CNS_TAG_GRID) {

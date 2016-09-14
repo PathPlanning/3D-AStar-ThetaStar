@@ -16,8 +16,11 @@ class Map
 
         bool getMap(const char *FileName);
         bool CellIsTraversable (int i, int j) const;
+        bool CellIsTraversable (int i, int j, int h) const;
         bool CellOnGrid (int i, int j) const;
+        bool CellOnGrid (int i, int j, int height) const;
         bool CellIsObstacle(int i, int j) const;
+        bool CellIsObstacle(int i, int j, int h) const;
         int  getValue(int i, int j) const;
 
     public:

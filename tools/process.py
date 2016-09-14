@@ -41,7 +41,10 @@ def parse_log(filename, shell=False):
         parse_result["title"] = None
     parse_result["width"] = int(map.find("width").text)
     parse_result["height"] = int(map.find("height").text)
-    parse_result["cellsize"] = int(map.find("cellsize").text)
+    try:
+        parse_result["cellsize"] = int(map.find("cellsize").text)
+    except AttributeError:
+        print("Couldn't find size of cell (attribute <cellsize>) in {}. Would be ignored.".format(filename))
     parse_result['start'] = (int(map.find("startx").text), int(map.find("starty").text))
     parse_result['finish'] = (int(map.find("finishx").text), int(map.find("finishy").text))
 
@@ -94,7 +97,7 @@ def parse_log(filename, shell=False):
     return parse_result
 
 
-def illustrate(parsed_data, output_filename, output_format="PNG", scale=2, print_title=False, font=None):
+def illustrate(parsed_data, output_filename, output_format="PNG", scale=2):
     scale = int(scale)
     scale = 1 if scale == 0 else scale
     height = parsed_data['height']
@@ -103,54 +106,33 @@ def illustrate(parsed_data, output_filename, output_format="PNG", scale=2, print
     finish = parsed_data['finish']
 
     text_zone_height = 0
-    if print_title and parsed_data['title'] is not None:
-        text_zone_height = SETTINGS['TITLE']['MARGIN_TOP'] + SETTINGS['TITLE']['MARGIN_BOTTOM'] + SETTINGS['TITLE'][
-            'BOX_HEIGHT']
-        text_zone_height += SETTINGS['TITLE']['SEP_HEIGHT'] if SETTINGS['TITLE']['SEP_LINE'] else 0
 
     im = Image.new("RGB", (scale * width, scale * (height + text_zone_height)), color=SETTINGS['EMPTY_COLOR'])
 
     dr = ImageDraw.Draw(im)
 
-    if print_title and parsed_data['title'] is not None:
-        font_size = fractions.Fraction(scale * SETTINGS['TITLE']['BOX_HEIGHT']) * 3
-        font_size /= 4
-        print("Loading font", font_size.real, "pt")
-        try:
-            fnt = ImageFont.truetype(font, font_size.real)
-            x_pos = height + SETTINGS['TITLE']['MARGIN_TOP'] + SETTINGS['TITLE']['SEP_HEIGHT'] if SETTINGS['TITLE'][
-                'SEP_LINE'] else 0
-            print("Writing text")
-            dr.text((scale * x_pos, 0), SETTINGS['TITLE'], fill=SETTINGS['TEXT_COLOR'], font=fnt)
-            if SETTINGS['TITLE']['SEP_LINE']:
-                dr.rectangle([(scale * height, 0), (scale * (height - SETTINGS['TITLE']['MARGIN_TOP']))],
-                             fill=SETTINGS['TITLE']['SEP_COLOR'])
-        except IOError:
-            print("Couldn't load font. Title won't be printed")
-
-    if parsed_data['section_path']:
-        dr.line(list(map(lambda elem: (scale * elem[0], scale * elem[1]), parsed_data['path'])),
-                fill=SETTINGS['PATH_COLOR'], width=scale)
-
     for x in range(width):
         for y in range(height):
-            if parsed_data['map'][y][x]:
-                color = SETTINGS['OBSTACLE_COLOR']
+            if (x, y) in parsed_data['opened_list']:
+                color = SETTINGS['OPENED_COLOR']
+            elif (x, y) in parsed_data['closed_list']:
+                color = SETTINGS['CLOSED_COLOR']
             elif (x, y) == start:
                 color = SETTINGS["START_COLOR"]
             elif (x, y) == finish:
                 color = SETTINGS["FINISH_COLOR"]
             elif not parsed_data['section_path'] and (x, y) in parsed_data['path']:
                 color = SETTINGS['PATH_COLOR']
-            elif (x, y) in parsed_data['closed_list']:
-                color = SETTINGS['CLOSED_COLOR']
-            elif (x, y) in parsed_data['opened_list']:
-                color = SETTINGS['OPENED_COLOR']
+            elif parsed_data['map'][y][x]:
+                color = SETTINGS['OBSTACLE_COLOR']
             else:
                 color = SETTINGS['EMPTY_COLOR']
 
             dr.rectangle([(scale * x, scale * y), (scale * x + scale, scale * y + scale)], fill=color)
 
+    if parsed_data['section_path']:
+        dr.line(list(map(lambda elem: (scale * elem[0], scale * elem[1]), parsed_data['path'])),
+                fill=SETTINGS['PATH_COLOR'], width=scale)
     del dr
     im.save(output_filename, output_format)
 
@@ -166,12 +148,12 @@ def get_log_output_filename(task_filename):
     return m.group('name') + "_log.xml"
 
 
-def make_path_and_picture(exec_filename, input_filename, log_filename, picture_filename, picture_format='PNG'):
+def make_path_and_picture(exec_filename, input_filename, log_filename, picture_filename, scale=2, picture_format='PNG'):
     code = subprocess.run([exec_filename, input_filename],
                           stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT).returncode
     if code == 0:
         data = parse_log(log_filename)
-        illustrate(data, picture_filename, picture_format)
+        illustrate(data, picture_filename, picture_format, scale)
         print("{} processed successfully".format(input_filename))
     else:
         print("Error has occurred during searching path for {}.\
@@ -185,6 +167,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--exe", required=True, help="Путь к исполняемому файлу проекта")
     parser.add_argument("--test", required=True, help="Путь к папке с заданиями в формате XML или единичному файлу")
+    parser.add_argument("--scale", required=False, type=int,
+                        help="Масштаб карты, относительно заданного в файле", default=2)
     args = parser.parse_args()
     exec_path = path.abspath(args.exe)
     if not path.isfile(exec_path):
@@ -202,13 +186,13 @@ if __name__ == "__main__":
 
     tasks = {}
     for filename in files:
-        m = re.match(r'(?P<number>\d+)\.xml', filename)
+        m = re.match(r'(?P<name>.+)(?<!_log)\.xml', filename)
         if m:
             tasks[path.join(dir_path, filename)] = (get_log_output_filename(path.join(dir_path, filename)),
-                                                    path.join(dir_path, m.group('number') + '.png'))
+                                                    path.join(dir_path, m.group('name') + '.plain.png'))
 
     with multiprocessing.Pool(min(SETTINGS['max_treads'], cpu_count())) as pool:
         for inp_path, val in tasks.items():
-            pool.apply_async(make_path_and_picture, [exec_path, inp_path, val[0], val[1]])
+            pool.apply_async(make_path_and_picture, [exec_path, inp_path, val[0], val[1], args.scale])
         pool.close()
         pool.join()

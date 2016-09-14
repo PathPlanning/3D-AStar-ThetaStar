@@ -18,8 +18,9 @@ ISearch::~ISearch(void) {
     }
 }
 
-double ISearch::MoveCost(int start_i, int start_j, int fin_i, int fin_j, const EnvironmentOptions &options) {
-    if ((start_i - fin_i) != 0 && (start_j - fin_j) != 0)
+double ISearch::MoveCost(int start_i, int start_j, int start_h, int fin_i, int fin_j, int fin_h,
+                         const EnvironmentOptions &options) {
+    if (abs(start_i - fin_i) + abs(start_j - fin_j) + abs(fin_h - start_h) > 1)
         return options.diagonalcost;
     return options.linecost;
 }
@@ -41,30 +42,32 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
         open[i].List.clear();
     curNode.i = map.start_i;
     curNode.j = map.start_j;
+    curNode.z = map.start_h;
     curNode.g = 0;
-    curNode.H = computeHFromCellToCell(curNode.i, curNode.j, map.goal_i, map.goal_j, options);
+    curNode.H = computeHFromCellToCell(curNode.i, curNode.j, curNode.z, map.goal_i, map.goal_j, map.goal_h, options);
     curNode.F = hweight * curNode.H;
     curNode.parent = nullptr;
 
     addOpen(curNode);
     int closeSize = 0;
     bool pathfound = false;
+    const Node *curIt;
     while (!stopCriterion()) {
         curNode = findMin(map.height);
-        close.insert(curNode);
+        curIt = &(*(close.insert(curNode).first));
         closeSize++;
         open[curNode.i].List.pop_front();
         openSize--;
 
-        if (curNode.i == map.goal_i && curNode.j == map.goal_j) {
+        if (curNode.i == map.goal_i && curNode.j == map.goal_j && curNode.z == map.goal_h) {
             pathfound = true;
             break;
         }
 
         std::list<Node> successors = findSuccessors(curNode, map, options);
         for (auto it = successors.begin(); it != successors.end(); ++it) {
-            it->parent = &(*(close.find(curNode)));
-            it->H = computeHFromCellToCell(it->i, it->j, map.goal_i, map.goal_j, options);
+            it->parent = curIt;
+            it->H = computeHFromCellToCell(it->i, it->j, it->z, map.goal_i, map.goal_j, map.goal_h, options);
             *it = resetParent(*it, *it->parent, map, options);
             it->F = it->g + hweight * it->H;
             addOpen(*it);
@@ -121,28 +124,32 @@ Node ISearch::findMin(int size) {
 
 }
 
-
 std::list<Node> ISearch::findSuccessors(Node curNode, const Map &map, const EnvironmentOptions &options) {
     Node newNode;
     std::list<Node> successors;
-    for (int i = -1; i <= +1; i++) {
-        for (int j = -1; j <= +1; j++) {
-            if ((i != 0 || j != 0) && map.CellOnGrid(curNode.i + i, curNode.j + j) &&
-                (map.CellIsTraversable(curNode.i + i, curNode.j + j))) {
-                if (options.allowdiagonal == CN_SP_AD_FALSE)
-                    if (i != 0 && j != 0)
+    for (int i = -1; i <= 1; ++i) {
+        for (int j = -1; j <= 1; ++j) {
+            for (int h = -1; h <= 1; ++h) {
+                if ((i != 0 || j != 0 || h != 0) && map.CellOnGrid(curNode.i + i, curNode.j + j, curNode.z + h) &&
+                    (map.CellIsTraversable(curNode.i + i, curNode.j + j, curNode.z + h))) {
+                    if (options.allowdiagonal == CN_SP_AD_FALSE && abs(i) + abs(j) + abs(h) > 1) {
                         continue;
-                if (options.allowsqueeze == CN_SP_AS_FALSE) {
-                    if (i != 0 && j != 0)
-                        if (map.CellIsObstacle(curNode.i, curNode.j + j) &&
-                            map.CellIsObstacle(curNode.i + i, curNode.j))
+                    }
+                    if (options.allowsqueeze == CN_SP_AS_FALSE && (i != 0 && j != 0)) {
+                        int min_obs_height = std::min(map.getValue(curNode.i, curNode.j + j),
+                                                      map.getValue(curNode.i + i, curNode.j));
+                        if (min_obs_height > std::max(curNode.z, curNode.z + h)) {
                             continue;
-                }
-                if (close.find(curNode) == close.end()) {
+                        }
+                    }
                     newNode.i = curNode.i + i;
                     newNode.j = curNode.j + j;
-                    newNode.g = curNode.g + MoveCost(curNode.i, curNode.j, curNode.i + i, curNode.j + j, options);
-                    successors.push_front(newNode);
+                    newNode.z = curNode.z + h;
+                    if (close.find(newNode) == close.end()) {
+                        newNode.g = curNode.g + MoveCost(curNode.i, curNode.j, curNode.z, curNode.i + i, curNode.j + j,
+                                                         curNode.z + h, options);
+                        successors.push_front(newNode);
+                    }
                 }
             }
         }
@@ -162,19 +169,18 @@ void ISearch::makePrimaryPath(Node curNode) {
 
 void ISearch::makeSecondaryPath(const Map &map, Node curNode) {
     std::list<Node>::const_iterator iter = lppath.List.begin();
-    int curI, curJ, nextI, nextJ, moveI, moveJ;
+    Node cur, next, move;
     hppath.List.push_back(*iter);
 
     while (iter != --lppath.List.end()) {
-        curI = iter->i;
-        curJ = iter->j;
+        cur = *iter;
         iter++;
-        nextI = iter->i;
-        nextJ = iter->j;
-        moveI = nextI - curI;
-        moveJ = nextJ - curJ;
+        next = *iter;
+        move.i = next.i - cur.i;
+        move.j = next.j - cur.j;
+        move.z = next.z - cur.z;
         iter++;
-        if ((iter->i - nextI) != moveI || (iter->j - nextJ) != moveJ)
+        if ((iter->i - next.i) != move.i || (iter->j - next.j) != move.j || (iter->z - next.z) != move.z)
             hppath.List.push_back(*(--iter));
         else
             iter--;
