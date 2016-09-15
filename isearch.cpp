@@ -52,6 +52,8 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
     int closeSize = 0;
     bool pathfound = false;
     const Node *curIt;
+    std::vector<Node> successors;
+    successors.reserve(26); // Usually every node has no more than 26 successors
     while (!stopCriterion()) {
         curNode = findMin(map.height);
         curIt = &(*(close.insert(curNode).first));
@@ -64,7 +66,8 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
             break;
         }
 
-        std::list<Node> successors = findSuccessors(curNode, map, options);
+        successors.resize(0);
+        findSuccessors(curNode, map, options, successors);
         for (auto it = successors.begin(); it != successors.end(); ++it) {
             it->parent = curIt;
             it->H = computeHFromCellToCell(it->i, it->j, it->z, map.goal_i, map.goal_j, map.goal_h, options);
@@ -124,9 +127,8 @@ Node ISearch::findMin(int size) {
 
 }
 
-std::list<Node> ISearch::findSuccessors(Node curNode, const Map &map, const EnvironmentOptions &options) {
+void ISearch::findSuccessors(Node curNode, const Map &map, const EnvironmentOptions &options, std::vector<Node> &output) {
     Node newNode;
-    std::list<Node> successors;
     for (int i = -1; i <= 1; ++i) {
         for (int j = -1; j <= 1; ++j) {
             for (int h = -1; h <= 1; ++h) {
@@ -148,13 +150,12 @@ std::list<Node> ISearch::findSuccessors(Node curNode, const Map &map, const Envi
                     if (close.find(newNode) == close.end()) {
                         newNode.g = curNode.g + MoveCost(curNode.i, curNode.j, curNode.z, curNode.i + i, curNode.j + j,
                                                          curNode.z + h, options);
-                        successors.push_front(newNode);
+                        output.push_back(newNode);
                     }
                 }
             }
         }
     }
-    return successors;
 }
 
 void ISearch::makePrimaryPath(Node curNode) {

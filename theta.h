@@ -11,9 +11,9 @@ class Theta: public Astar
 
 
     private:
-
-        bool lineOfSight(int parent_i, int parent_j, int curent_i, int curent_j, const Map &map);//проверяет существование линии между двумя точками
-        bool grid(int i, int j, const Map &map);//проверяет принадлежность точки к карте и проходимость
+        const double computation_eps = 0.0001;
+    protected:
+        double EuclidDistance(const Node &from, const Node &to, const EnvironmentOptions &options) const;
         Node resetParent(Node current, Node parent, const Map &map, const EnvironmentOptions &options);
         void makePrimaryPath(Node curNode);
         void makeSecondaryPath(const Map &map,Node curNode);

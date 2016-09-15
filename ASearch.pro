@@ -8,7 +8,7 @@ TARGET = ASearch
 CONFIG   += console
 CONFIG   -= app_bundle
 TEMPLATE = app
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++11 -O3
 
 win32 {
 QMAKE_LFLAGS += -static -static-libgcc -static-libstdc++
@@ -28,7 +28,9 @@ SOURCES += \
     config.cpp \
     astar.cpp \
     asearch.cpp \
-    environmentoptions.cpp
+    environmentoptions.cpp \
+    Bresenham.cpp \
+    theta.cpp
 
 HEADERS += \
     tinyxml.h \
@@ -44,4 +46,6 @@ HEADERS += \
     config.h \
     astar.h \
     searchresult.h \
-    environmentoptions.h
+    environmentoptions.h \
+    Bresenham.h \
+    theta.h

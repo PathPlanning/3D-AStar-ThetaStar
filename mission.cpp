@@ -3,7 +3,7 @@
 #include "astar.h"
 //#include "bfs.h"
 //#include "dijkstra.h"
-//#include "theta.h"
+#include "theta.h"
 #include "xmllogger.h"
 #include "gl_const.h"
 
@@ -56,7 +56,7 @@ void Mission::createEnvironmentOptions()
 
 void Mission::createSearch()
 {
-    search = new Astar(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL], map.height);
+    search = new Theta(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL], map.height);
     /*if (config.SearchParams[CN_SP_ST] == CN_SP_ST_BFS)
     {
         search = new BFS(map.height);

@@ -32,5 +32,8 @@ set(SOURCE_FILES
         astar.h
         searchresult.h
         environmentoptions.h
-        )
+        Bresenham.cpp
+        Bresenham.h
+        theta.cpp
+        theta.h)
 add_executable(Astar_heights ${SOURCE_FILES})
