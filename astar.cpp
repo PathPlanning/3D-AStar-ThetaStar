@@ -34,13 +34,16 @@ double Astar::computeHFromCellToCell(int start_i, int start_j, int start_h, int 
         d_j -= diag;
         d_h -= diag;
         if (d_i == 0) {
-            return options.diagonalcost * (std::min(d_j, d_h) + diag) + options.linecost * abs(d_j - d_h);
+            return options.linecost * sqrt(3) * diag + options.diagonalcost * std::min(d_j, d_h) +
+                   options.linecost * abs(d_j - d_h);
         }
         if (d_j == 0) {
-            return options.diagonalcost * (std::min(d_i, d_h) + diag) + options.linecost * abs(d_i - d_h);
+            return options.linecost * sqrt(3) * diag + options.diagonalcost * std::min(d_i, d_h) +
+                   options.linecost * abs(d_i - d_h);
         }
         if (d_h == 0) {
-            return options.diagonalcost * (std::min(d_i, d_j) + diag) + options.linecost * abs(d_i - d_j);
+            return options.linecost * sqrt(3) * diag + options.diagonalcost * std::min(d_i, d_j) +
+                   options.linecost * abs(d_i - d_j);
         }
     }
     return 0;

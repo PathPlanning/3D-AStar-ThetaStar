@@ -14,133 +14,100 @@ Mission::Mission()//у config и map - есть свои конструктор�
     fileName = NULL;
 }
 
-Mission::Mission(const char* FileName)
-{
+Mission::Mission(const char *FileName) {
     fileName = FileName;
     logger = NULL;
     search = NULL;
 }
 
-Mission::~Mission()
-{
+Mission::~Mission() {
     if (logger) delete logger;
     if (search) delete search;
 }
 
-bool Mission::getMap()
-{
+bool Mission::getMap() {
     return map.getMap(fileName);
 }
 
-bool Mission::getConfig()
-{
+bool Mission::getConfig() {
     return config.getConfig(fileName);
 }
 
-bool Mission::createLog()
-{
+bool Mission::createLog() {
     logger = new XmlLogger();
     logger->loglevel = config.SearchParams[CN_SP_LL];
-    return logger -> getLog (fileName, config.LogParams);
+    return logger->getLog(fileName, config.LogParams);
 }
 
-void Mission::createEnvironmentOptions()
-{
-    options.metrictype=config.SearchParams[CN_SP_MT];
-    options.allowdiagonal=config.SearchParams[CN_SP_AD];
-    options.allowsqueeze=config.SearchParams[CN_SP_AS];
-    options.linecost=config.SearchParams[CN_SP_LC];
-    options.diagonalcost=config.SearchParams[CN_SP_DC];
-    options.useresetparent=config.SearchParams[CN_SP_RP];
+void Mission::createEnvironmentOptions() {
+    options.metrictype = config.SearchParams[CN_SP_MT];
+    options.allowdiagonal = config.SearchParams[CN_SP_AD];
+    options.allowsqueeze = config.SearchParams[CN_SP_AS];
+    options.linecost = config.SearchParams[CN_SP_LC];
+    options.diagonalcost = config.SearchParams[CN_SP_DC];
+    options.useresetparent = config.SearchParams[CN_SP_RP];
 }
 
-void Mission::createSearch()
-{
-    search = new Theta(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL], map.height);
-    /*if (config.SearchParams[CN_SP_ST] == CN_SP_ST_BFS)
-    {
-        search = new BFS(map.height);
+void Mission::createSearch() {
+    if (config.SearchParams[CN_SP_ST] == CN_SP_ST_ASTAR) {
+        search = new Astar(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL],
+                           map.height);
+    } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_TH) {
+        search = new Theta(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL],
+                           map.height);
+    } else {
+        std::cout << "Algorithm " << getAlgorithmName()
+                  << " is not implemented. Please use one of implemented algorithms: A*, Theta*\nProgram halted!\n";
+        exit(0);
     }
-    else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_DIJK)
-    {
-        search = new Dijkstra(map.height);
-    }
-    else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_ASTAR)
-    {
-        search = new Astar(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL], map.height);
-    }
-    else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_JP_SEARCH)
-    {
-        search=new JP_Search(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL], map.height);
-    }
-    else if (config.SearchParams[CN_SP_ST]== CN_SP_ST_TH)
-    {
-        search = new Theta (config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL], map.height);
-    }*/
 
 }
 
-void Mission::startSearch()
-{
-    sr=search->startSearch(logger, map, options);
+void Mission::startSearch() {
+    sr = search->startSearch(logger, map, options);
 }
 
-void Mission::printSearchResultsToConsole()
-{
+void Mission::printSearchResultsToConsole() {
 
-        std::cout << "Path ";
-        if (!sr.pathfound)
-            std::cout << "NOT ";
-        std::cout << "found!" << std::endl;
+    std::cout << "Path ";
+    if (!sr.pathfound)
+        std::cout << "NOT ";
+    std::cout << "found!" << std::endl;
 
-        std::cout << "numberofsteps=" << sr.numberofsteps << std::endl;
-        std::cout << "nodescreated=" << sr.nodescreated << std::endl;
+    std::cout << "numberofsteps=" << sr.numberofsteps << std::endl;
+    std::cout << "nodescreated=" << sr.nodescreated << std::endl;
 
-        if (sr.pathfound)
-            std::cout << "pathlength=" << sr.pathlength << std::endl;
-        std::cout << "time=" << sr.time << std::endl;
+    if (sr.pathfound)
+        std::cout << "pathlength=" << sr.pathlength << std::endl;
+    std::cout << "time=" << sr.time << std::endl;
 
 }
 
-void Mission::saveSearchResultsToLog(){
+void Mission::saveSearchResultsToLog() {
     //Логгер - сам разберется писать ему лог или нет
     logger->writeToLogSummary(sr.numberofsteps, sr.nodescreated, sr.pathlength, sr.time);
 
-    if (sr.pathfound)
-    {
+    if (sr.pathfound) {
         logger->writeToLogPath(*sr.lppath);
         logger->writeToLogHPpath(*sr.hppath);
-        logger->writeToLogMap(map,*sr.lppath);
-    }
-    else
+        logger->writeToLogMap(map, *sr.lppath);
+    } else
         logger->writeToLogNotFound();
     logger->saveLog();
 }
 
-const char* Mission::getAlgorithmName ()
-{
-    if (config.SearchParams[CN_SP_ST] == CN_SP_ST_ASTAR)
-    {
+const char *Mission::getAlgorithmName() {
+    if (config.SearchParams[CN_SP_ST] == CN_SP_ST_ASTAR) {
         return CNS_SP_ST_ASTAR;
-    }
-    else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_DIJK)
-    {
+    } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_DIJK) {
         return CNS_SP_ST_DIJK;
-    }
-    else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_BFS)
-    {
+    } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_BFS) {
         return CNS_SP_ST_BFS;
-    }
-    else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_JP_SEARCH)
-    {
+    } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_JP_SEARCH) {
         return CNS_SP_ST_JP_SEARCH;
-    }
-    else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_TH)
-    {
+    } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_TH) {
         return CNS_SP_ST_TH;
-    }
-    else
-    {
+    } else {
         return "";
     }
 }

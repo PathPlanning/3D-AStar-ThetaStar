@@ -26,20 +26,20 @@ Node Theta::resetParent(Node current, Node parent, const Map &map, const Environ
 
 void Theta::makeSecondaryPath(const Map &map, Node curNode) {
     Liner liner(map, &lppath.List);
-    std::list<Node>::const_iterator section_start;
-    for (auto It = hppath.List.begin(); It != --hppath.List.end(); ++It) {
-        section_start = It;
-        liner.append_line(*section_start, *(++section_start));
-        if (section_start != --hppath.List.end()) {
+    std::list<Node>::iterator cur;
+    for (auto it = hppath.List.begin(); it != --hppath.List.end();) {
+        if (!lppath.List.empty()) {
             lppath.List.pop_back();
         }
+        cur = it;
+        liner.append_line(*cur, *(++it));
     }
     sresult.lppath = &lppath; //здесь у sresult - указатель на константу.
 }
 
 void Theta::makePrimaryPath(Node curNode) {
     Node current = curNode;
-    while (current.parent) {
+    while (current.parent != nullptr) {
         hppath.List.push_front(current);
         current = *current.parent;
     }

@@ -20,9 +20,8 @@ ISearch::~ISearch(void) {
 
 double ISearch::MoveCost(int start_i, int start_j, int start_h, int fin_i, int fin_j, int fin_h,
                          const EnvironmentOptions &options) {
-    if (abs(start_i - fin_i) + abs(start_j - fin_j) + abs(fin_h - start_h) > 1)
-        return options.diagonalcost;
-    return options.linecost;
+    //Assuming that we work in a Euclidean space
+    return options.linecost * sqrt(abs(start_i - fin_i) + abs(start_j - fin_j) + abs(start_h - fin_h));
 }
 
 bool ISearch::stopCriterion() {
@@ -57,9 +56,9 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
     while (!stopCriterion()) {
         curNode = findMin(map.height);
         curIt = &(*(close.insert(curNode).first));
-        closeSize++;
+        ++closeSize;
         open[curNode.i].List.pop_front();
-        openSize--;
+        --openSize;
 
         if (curNode.i == map.goal_i && curNode.j == map.goal_j && curNode.z == map.goal_h) {
             pathfound = true;
@@ -160,7 +159,7 @@ void ISearch::findSuccessors(Node curNode, const Map &map, const EnvironmentOpti
 
 void ISearch::makePrimaryPath(Node curNode) {
     Node current = curNode;
-    while (current.parent) {
+    while (current.parent != nullptr) {
         lppath.List.push_front(current);
         current = *current.parent;
     }

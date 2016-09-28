@@ -11,12 +11,12 @@ from PIL import Image, ImageDraw, ImageFont
 SETTINGS = {
     'max_treads': 3,
     'EMPTY_COLOR': (255, 255, 255),
-    'PATH_COLOR': (255, 255, 0),
+    'PATH_COLOR': (0, 0, 255),
     'OBSTACLE_COLOR': (0, 0, 0),
     'START_COLOR': (0, 255, 0),
     'FINISH_COLOR': (255, 0, 0),
-    'CLOSED_COLOR': (87, 72, 468),
-    'OPENED_COLOR': (123, 63, 0),
+    'CLOSED_COLOR': (123, 63, 0),
+    'OPENED_COLOR': (87, 72, 468),
     'TEXT_COLOR': (0, 0, 0),
     'TITLE': {
         'MARGIN_TOP': 2,
@@ -41,6 +41,12 @@ def parse_log(filename, shell=False):
         parse_result["title"] = None
     parse_result["width"] = int(map.find("width").text)
     parse_result["height"] = int(map.find("height").text)
+    try:
+        parse_result['max_level'] = int(map.find("maxlevel").text)
+    except AttributeError:
+        parse_result["max_level"] = None
+        print("Couldn't find 'max_level' attribute image will be monochromatic")
+
     try:
         parse_result["cellsize"] = int(map.find("cellsize").text)
     except AttributeError:
@@ -124,7 +130,16 @@ def illustrate(parsed_data, output_filename, output_format="PNG", scale=2):
             elif not parsed_data['section_path'] and (x, y) in parsed_data['path']:
                 color = SETTINGS['PATH_COLOR']
             elif parsed_data['map'][y][x]:
-                color = SETTINGS['OBSTACLE_COLOR']
+                if parsed_data['max_level'] is not None:
+                    color = [0] * len(SETTINGS['OBSTACLE_COLOR'])
+                    for i in range(len(SETTINGS['OBSTACLE_COLOR'])):
+                        color[i] = SETTINGS['EMPTY_COLOR'][i] + parsed_data['map'][y][x] * (
+                        SETTINGS['OBSTACLE_COLOR'][i] - SETTINGS['EMPTY_COLOR'][i]) / parsed_data['max_level']
+                        color[i] = int(color[i])
+                    color = tuple(color)
+
+                else:
+                    color = SETTINGS['OBSTACLE_COLOR']
             else:
                 color = SETTINGS['EMPTY_COLOR']
 
