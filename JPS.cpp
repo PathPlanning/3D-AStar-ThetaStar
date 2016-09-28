@@ -110,6 +110,7 @@ std::pair<int, int> JPS::corner_directions(int direction) const {
 
 std::pair<vertex, bool> JPS::jump(vertex position, int direction, const vertex &goal,
                                   const EnvironmentOptions &options, const Map &map) const {
+    vertex next;
     while (true) {
         position = make_one_step(position, direction);
         if (!map.CellOnGrid(position.i, position.j) || map.CellIsObstacle(position.i, position.j)) {
@@ -125,6 +126,11 @@ std::pair<vertex, bool> JPS::jump(vertex position, int direction, const vertex &
             if (jump(position, corner_dirs.first, goal, options, map).second ||
                 jump(position, corner_dirs.second, goal, options, map).second) {
                 return {position, true};
+            }
+            next = make_one_step(position, direction);
+            if (map.CellOnGrid(next.i, next.j) && map.CellIsObstacle(position.i, next.j) &&
+                map.CellIsObstacle(next.i, position.j)) {
+                return {position, false};
             }
         }
     }
@@ -303,7 +309,7 @@ std::list<Node> JPS::find_successors(Node *current, const Map &map, const Enviro
                     upd.i = jump_point.first.i;
                     upd.j = jump_point.first.j;
                     upd.g = current->g + (is_diag_move ? options.diagonalcost * distance({i, j}, jump_point.first) :
-                                     options.linecost * distance({i, j}, jump_point.first));
+                                          options.linecost * distance({i, j}, jump_point.first));
                     upd.H = heuristic(jump_point.first.i, jump_point.first.j, map.goal_i, map.goal_j, options);
                     upd.parent = current;
                     upd.F = upd.g + upd.H;
@@ -316,7 +322,7 @@ std::list<Node> JPS::find_successors(Node *current, const Map &map, const Enviro
 }
 
 void JPS::add_segment_to_path(const Node begin, const Node end, NodeList &path,
-                                  const EnvironmentOptions &options) const {
+                              const EnvironmentOptions &options) const {
     int segment_direction = direction(begin, end);
     bool is_segment_diagonal = is_diagonal_move(segment_direction);
     Node current = begin;
