@@ -1,5 +1,8 @@
 #include "map.h"
 
+#include <climits>
+#include <stdexcept>
+
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
     std::stringstream ss(s);
@@ -26,6 +29,8 @@ Map::Map() {
     goal_i = -1;
     goal_j = -1;
     goal_h = -1;
+    min_altitude_limit = 0;
+    max_altitude_limit = INT_MAX;
     Grid = NULL;
 }
 
@@ -58,7 +63,7 @@ bool Map::CellOnGrid(int i, int j) const {
 }
 
 bool Map::CellOnGrid(int i, int j, int height) const {
-    return height >= 0 && CellOnGrid(i, j);
+    return height >= min_altitude_limit && height <= max_altitude_limit && CellOnGrid(i, j);
 }
 
 bool Map::getMap(const char *FileName) {
@@ -70,6 +75,7 @@ bool Map::getMap(const char *FileName) {
 
     bool hasGridMem = false, hasGrid = false, hasHeight = false, hasWidth = false, hasSTX = false, hasSTY = false;
     bool hasSTZ = false, hasFINX = false, hasFINY = false, hasFINZ = false, hasSTH = false, hasFINH = false;
+    bool hasMAXALT = false, hasALTLIM = false;
 
     TiXmlDocument doc(FileName);
 
@@ -101,8 +107,10 @@ bool Map::getMap(const char *FileName) {
     //т.е. ВСЕГДА запоминается и используется ТОЛЬКО первое (корректно определенное) значение старта (х, у), финиша (х, у), высоты, ширины
 
 
-    mapnode = map->FirstChild();//перебираем внутренности тега "карта"
-    while (mapnode) {
+    for (mapnode = map->FirstChild(); mapnode; mapnode = map->IterateChildren(mapnode)) {
+        if (mapnode->Type() == TiXmlNode::TINYXML_COMMENT) { // Skipping comments
+            continue;
+        }
         element = mapnode->ToElement(); //очередной элемент (тег)
         value = mapnode->Value(); // имя тега
         std::transform(value.begin(), value.end(), value.begin(), ::tolower); //"хорошее имя тега"
@@ -169,6 +177,56 @@ bool Map::getMap(const char *FileName) {
         }
             //Закончили с шириной
 
+        else if (value == CNS_TAG_MAXALT) {
+            if (hasMAXALT) //Дубль. Максимальная высота карты уже была
+            {
+                std::cout << "Warning! Duplicate '" << CNS_TAG_MAXALT << "' encountered." << std::endl;
+                std::cout << "Only first value of '" << CNS_TAG_MAXALT << "' =" << altitude << "will be used."
+                          << std::endl;
+            } else {
+                if (!((stream >> altitude) && (altitude > 0))) {
+                    std::cout << "Warning! Invalid value of '" << CNS_TAG_MAXALT
+                              << "' tag encountered (or could not convert to integer)." << std::endl;
+                    std::cout << "Value of '" << CNS_TAG_MAXALT << "' tag should be an integer AND >=0" << std::endl;
+                    std::cout << "Continue reading XML and hope correct value of '" << CNS_TAG_MAXALT
+                              << "' tag will be encountered later..." << std::endl;
+
+                } else {
+                    hasMAXALT = true;
+                    if (!hasALTLIM) {
+                        max_altitude_limit = altitude;
+                    }
+                }
+            }
+        } else if (value == CNS_TAG_ALTLIM) {
+            if (hasALTLIM) //Дубль. Ограничения на высоту
+            {
+                std::cout << "Warning! Duplicate '" << CNS_TAG_ALTLIM << "' encountered." << std::endl;
+                std::cout << "Only first value of '" << CNS_TAG_ALTLIM << "will be used." << std::endl;
+            } else {
+                hasALTLIM = true;
+                if (!((element->Attribute(CNS_TAG_ALTLIM_ATTR_MIN, &min_altitude_limit)) && (min_altitude_limit > 0))) {
+                    std::cout << "Warning! Invalid value of '" << CNS_TAG_ALTLIM_ATTR_MIN << "' attribute of '"
+                              << CNS_TAG_ALTLIM << "' tag encountered (or could not convert to integer)." << std::endl;
+                    std::cout << "Value of '" << CNS_TAG_ALTLIM_ATTR_MIN << "' tag should be an integer AND >=0"
+                              << std::endl;
+                    std::cout << "Continue reading XML and hope correct value of '" << CNS_TAG_ALTLIM_ATTR_MIN
+                              << "' tag will be encountered later..." << std::endl;
+                    hasALTLIM = false;
+                }
+                if (!((element->Attribute(CNS_TAG_ALTLIM_ATTR_MAX, &max_altitude_limit)) &&
+                      (max_altitude_limit >= min_altitude_limit))) {
+                    std::cout << "Warning! Invalid value of '" << CNS_TAG_ALTLIM_ATTR_MAX << "' attribute of '"
+                              << CNS_TAG_ALTLIM << "' tag encountered (or could not convert to integer)." << std::endl;
+                    std::cout << "Value of '" << CNS_TAG_ALTLIM_ATTR_MAX
+                              << "' tag should be an integer AND be not less than attribute '"
+                              << CNS_TAG_ALTLIM_ATTR_MIN << "'" << std::endl;
+                    std::cout << "Continue reading XML and hope correct value of '" << CNS_TAG_ALTLIM_ATTR_MIN
+                              << "' tag will be encountered later..." << std::endl;
+                    hasALTLIM = false;
+                }
+            }
+        }
 
             //4. Старт-Икс
         else if (value == CNS_TAG_STX) {
@@ -362,8 +420,6 @@ bool Map::getMap(const char *FileName) {
                 element = element->NextSiblingElement();
             }
         }
-        mapnode = map->IterateChildren(mapnode);
-
     }
     //Закончили с гридом
     if (!hasGrid)//проверка на то, что в файле нет тега grid
@@ -375,15 +431,34 @@ bool Map::getMap(const char *FileName) {
           hasSTY))//Проверка на то, что так и не удалось считать нормальный старт и финиш.
         return false;
 
+    if (!(hasFINZ && hasSTZ)) {
+        start_h = goal_h = min_altitude_limit = max_altitude_limit = 0;
+        std::cout << "Warning! Couldn't find altitude of start or finish. Map will be interpreted as a 2D.\n";
+    }
+
     if (Grid[start_i][start_j] > start_h) {
-        std::cout << "Error! Start cell is not traversable (cell's is on a height " << start_h
+        std::cout << "Error! Start cell is not traversable (cell's is on a altitude " << start_h
                   << ", but obstacle has height " << Grid[start_i][start_j] << ")!" << std::endl;
         return false;
     }
 
     if (Grid[goal_i][goal_j] > goal_h) {
-        std::cout << "Error! Goal cell is not traversable (cell's is on a height " << goal_h
+        std::cout << "Error! Goal cell is not traversable (cell's is on a altitude " << goal_h
                   << ", but obstacle has height " << Grid[goal_i][goal_j] << ")!" << std::endl;
+        return false;
+    }
+
+    if (start_h < min_altitude_limit || start_h > max_altitude_limit) {
+        std::cout << "Error! Start cell is on forbidden altitude: " << start_h
+                  << ", but allowed only alltitude between " << min_altitude_limit << " and " << max_altitude_limit
+                  << ". Please change start cell's altitude or altitude limits." << std::endl;
+        return false;
+    }
+
+    if (goal_h < min_altitude_limit || goal_h > max_altitude_limit) {
+        std::cout << "Error! Goal cell is on forbidden altitude: " << start_h
+                  << ", but allowed only alltitude between " << min_altitude_limit << " and " << max_altitude_limit
+                  << ". Please change goal cell's altitude or altitude limits." << std::endl;
         return false;
     }
 
@@ -391,12 +466,11 @@ bool Map::getMap(const char *FileName) {
 }
 
 int Map::getValue(int i, int j) const {
-// TODO переделать с исключениями для наглядности возникаемой ошибки
     if (i < 0 || i >= height)
-        return -1;
+        throw std::out_of_range("i coordinate is out of grid");
 
     if (j < 0 || j >= width)
-        return -1;
+        throw std::out_of_range("j coordinate is out of grid");
 
     return Grid[i][j];
 }

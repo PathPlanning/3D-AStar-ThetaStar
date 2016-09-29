@@ -19,6 +19,10 @@
 #define CNS_TAG_FINZ    "finishz"
 #define CNS_TAG_GRID    "grid"
 #define CNS_TAG_ROW "row"
+#define CNS_TAG_MAXALT         "maxaltitude"
+#define CNS_TAG_ALTLIM         "altitudelimits"
+    #define CNS_TAG_ALTLIM_ATTR_MIN "min"
+    #define CNS_TAG_ALTLIM_ATTR_MAX "max"
 
 #define CNS_TAG_ALG     "algorithm"
 #define CNS_TAG_ST  "searchtype"

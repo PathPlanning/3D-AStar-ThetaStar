@@ -9,23 +9,15 @@ import re
 from PIL import Image, ImageDraw, ImageFont
 
 SETTINGS = {
-    'max_treads': 3,
+    'max_treads': 5,
     'EMPTY_COLOR': (255, 255, 255),
     'PATH_COLOR': (0, 0, 255),
     'OBSTACLE_COLOR': (0, 0, 0),
     'START_COLOR': (0, 255, 0),
     'FINISH_COLOR': (255, 0, 0),
-    'CLOSED_COLOR': (123, 63, 0),
-    'OPENED_COLOR': (87, 72, 468),
+    'CLOSED_COLOR': (153, 88, 61),
+    'OPENED_COLOR': (204, 74, 20),
     'TEXT_COLOR': (0, 0, 0),
-    'TITLE': {
-        'MARGIN_TOP': 2,
-        'MARGIN_BOTTOM': 2,
-        'BOX_HEIGHT': 30,
-        'SEP_LINE': True,
-        'SEP_HEIGHT': 4,
-        'SEP_COLOR': (123, 0, 28)
-    }
 }
 
 
@@ -42,10 +34,10 @@ def parse_log(filename, shell=False):
     parse_result["width"] = int(map.find("width").text)
     parse_result["height"] = int(map.find("height").text)
     try:
-        parse_result['max_level'] = int(map.find("maxlevel").text)
+        parse_result['max_level'] = int(map.find("maxaltitude").text)
     except AttributeError:
         parse_result["max_level"] = None
-        print("Couldn't find 'max_level' attribute image will be monochromatic")
+        print("Couldn't find <maxaltitude> attribute image will be monochromatic")
 
     try:
         parse_result["cellsize"] = int(map.find("cellsize").text)
@@ -66,39 +58,39 @@ def parse_log(filename, shell=False):
 
     log = root.find('log')
 
-    level = log.find('lplevel')
-    # For all paths 'lppath' section is used
-    if (True or not any_angle_search and level is not None):
-        parse_result['section_path'] = False
-        path = set()
-        for node in level.iter('node'):
-            path.add((int(node.get('x')), int(node.get('y'))))
-        parse_result['path'] = path
-    else:
-        path = []
-        parse_result['section_path'] = True
-        level = log.find('hplevel')
-        section = level.find('section')
-        path.append((int(section.get('start.x')), int(section.get('start.y'))))
-        for section in level.iter('section'):
-            path.append((int(section.get('finish.x')), int(section.get('finish.y'))))
-        parse_result['path'] = path
-
-    level = log.find('viewed')
+    path = []
     closed = set()
     opened = set()
-    if level is None:
-        if shell:
-            print("Can not find viewed section. Points visited by algorithm won't be shown for {}.".format(filename))
-    else:
-        for node in level.iter('node'):
-            if (node.get('closed')):
-                closed.add((int(node.get('x')), int(node.get('y'))))
-            else:
-                opened.add((int(node.get('x')), int(node.get('y'))))
+    if log.find('path').text != 'Path NOT found!':
+        level = log.find('lplevel')
+        # For all paths 'lppath' section is used
+        if (True or not any_angle_search and level is not None):
+            path = set()
+            for node in level.iter('node'):
+                path.add((int(node.get('x')), int(node.get('y'))))
+        else:
+            parse_result['section_path'] = True
+            level = log.find('hplevel')
+            section = level.find('section')
+            path.append((int(section.get('start.x')), int(section.get('start.y'))))
+            for section in level.iter('section'):
+                path.append((int(section.get('finish.x')), int(section.get('finish.y'))))
 
+        level = log.find('viewed')
+        if level is None:
+            if shell:
+                print("Can not find viewed section. Points visited by algorithm won't be shown for {}.".format(filename))
+        else:
+            for node in level.iter('node'):
+                if (node.get('closed')):
+                    closed.add((int(node.get('x')), int(node.get('y'))))
+                else:
+                    opened.add((int(node.get('x')), int(node.get('y'))))
+
+    parse_result['section_path'] = False
     parse_result['closed_list'] = closed
     parse_result['opened_list'] = opened
+    parse_result['path'] = path
 
     return parse_result
 

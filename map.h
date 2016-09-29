@@ -25,7 +25,8 @@ class Map
 
     public:
         int**   Grid;
-        int     height, width;
+        int     height, width, altitude;
+        int     min_altitude_limit, max_altitude_limit; // The lowest and highest possible altitude for the path
         int     start_i, start_j, start_h;
         int     goal_i, goal_j, goal_h;
 };
