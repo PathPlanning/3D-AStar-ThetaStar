@@ -246,7 +246,7 @@ void XmlLogger::writeToLogOpenClose(const NodeList *open, const std::unordered_m
 }
 
 void XmlLogger::writeToLogViewed(const std::map<Node, bool> &viewed) {
-    if (loglevel == CN_SP_LL_NOLOG || loglevel != CN_SP_LL_SMALLLOG || viewed.empty()) return;
+    if (loglevel == CN_SP_LL_NOLOG || loglevel == CN_SP_LL_SMALLLOG || viewed.empty()) return;
     TiXmlNode *child = 0, *lowlevel = doc->FirstChild(CNS_TAG_ROOT);
     lowlevel = lowlevel -> FirstChild(CNS_TAG_LOG);
 
