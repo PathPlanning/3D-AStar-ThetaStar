@@ -30,7 +30,9 @@ SOURCES += \
     asearch.cpp \
     environmentoptions.cpp \
     Bresenham.cpp \
-    theta.cpp
+    theta.cpp \
+    dijkstra.cpp \
+    bfs.cpp
 
 HEADERS += \
     tinyxml.h \
@@ -48,4 +50,6 @@ HEADERS += \
     searchresult.h \
     environmentoptions.h \
     Bresenham.h \
-    theta.h
+    theta.h \
+    dijkstra.h \
+    bfs.h

@@ -2,15 +2,16 @@
 #define BFS_H
 #include "gl_const.h"
 #include "isearch.h"
+#include "astar.h"
 
-class BFS : public ISearch
+class BFS : public Astar
 {
+protected:
+    virtual void addOpen(Node newNode);
     public:
-        BFS(int i);
+        BFS();
         ~BFS(void);
 
-        void addOpen(Node newNode);
-        double computeHFromCellToCell(int start_i, int start_j, int fin_i, int fin_j, const EnvironmentOptions &options);
 };
 
 #endif

@@ -18,7 +18,7 @@ class XmlLogger : public ILogger
         bool getLog(const char* FileName, const std::string* LogParams);
         void saveLog();
         void writeToLogMap(const Map& Map, const NodeList& path);
-        void writeToLogOpenClose(const NodeList *open, const std::unordered_map<int, Node> &close, int size);
+        void writeToLogOpenClose(const NodeList *open, const std::unordered_set<Node> &close, int size, bool summary);
         void writeToLogPath(const NodeList& path);
         void writeToLogHPpath(const NodeList& hppath);
         void writeToLogNotFound();

@@ -4,6 +4,8 @@
 #include "isearch.h"
 #include <iostream>
 
+Astar::Astar() : ISearch() {}
+
 Astar::Astar(double w, int BT, int SL, int i) {
     hweight = w;
     breakingties = BT;
@@ -56,7 +58,7 @@ void Astar::addOpen(Node newNode) {
 
     pos = open[newNode.i].List.end();
 
-    if (open[newNode.i].List.size() == 0) {
+    if (open[newNode.i].List.empty()) {
         open[newNode.i].List.push_back(newNode);
         openSize++;
         return;

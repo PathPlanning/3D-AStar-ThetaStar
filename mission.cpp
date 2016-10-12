@@ -1,8 +1,8 @@
 #include "mission.h"
 //#include "jp_search.h"
 #include "astar.h"
-//#include "bfs.h"
-//#include "dijkstra.h"
+#include "bfs.h"
+#include "dijkstra.h"
 #include "theta.h"
 #include "xmllogger.h"
 #include "gl_const.h"
@@ -52,12 +52,16 @@ void Mission::createSearch() {
     if (config.SearchParams[CN_SP_ST] == CN_SP_ST_ASTAR) {
         search = new Astar(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL],
                            map.height);
+    } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_DIJK) {
+        search = new Dijkstra(map.height);
+    } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_BFS) {
+        search = new BFS();
     } else if (config.SearchParams[CN_SP_ST] == CN_SP_ST_TH) {
         search = new Theta(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL],
                            map.height);
     } else {
         std::cout << "Algorithm " << getAlgorithmName()
-                  << " is not implemented. Please use one of implemented algorithms: A*, Theta*\nProgram halted!\n";
+                  << " is not implemented. Please use one of implemented algorithms: A*, Theta*, Dijkstra\nProgram halted!\n";
         exit(0);
     }
 

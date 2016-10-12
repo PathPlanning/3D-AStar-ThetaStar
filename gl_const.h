@@ -109,6 +109,7 @@
 #define CN_SP_LL_NOLOG      0
 #define CN_SP_LL_SMALLLOG   1
 #define CN_SP_LL_FULLLOG    2
+#define CN_SP_LL_PARTIALLOG    1.5
 
 #define CN_SP_AS 2 //AllowSqueeze
 

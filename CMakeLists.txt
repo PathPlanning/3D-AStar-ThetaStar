@@ -35,5 +35,9 @@ set(SOURCE_FILES
         Bresenham.cpp
         Bresenham.h
         theta.cpp
-        theta.h)
+        theta.h
+        dijkstra.cpp
+        dijkstra.h
+        bfs.cpp
+        bfs.h)
 add_executable(Astar_heights ${SOURCE_FILES})

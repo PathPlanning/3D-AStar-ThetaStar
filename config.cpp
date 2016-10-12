@@ -177,7 +177,7 @@ bool Config::getConfig(const char* FileName)
     else
     {
         std::cout << "Error! Value of '"<< CNS_TAG_ST <<"' tag (algorithm name) is not correctly specified." << std::endl;
-        std::cout << "Supported algorithm's names are: '"<< CNS_SP_ST_BFS << "', '" << CNS_SP_ST_DIJK << "', '" << CNS_SP_ST_ASTAR << "', '" << CNS_SP_ST_JP_SEARCH << "'."  << std::endl;
+        std::cout << "Supported algorithm's names are: '"<< CNS_SP_ST_BFS << "', '" << CNS_SP_ST_DIJK << "', '" << CNS_SP_ST_ASTAR << "', '" << CNS_SP_ST_TH << "'."  << std::endl;
         return false;
     }
 
@@ -352,13 +352,17 @@ bool Config::getConfig(const char* FileName)
             stream.str("");
             stream.clear();
 
-            if (loglevel == CN_SP_LL_NOLOG) SearchParams[CN_SP_LL] = CN_SP_LL_NOLOG;
-            else if (loglevel == CN_SP_LL_SMALLLOG) SearchParams[CN_SP_LL] = CN_SP_LL_SMALLLOG;
-            else if (loglevel == CN_SP_LL_FULLLOG) SearchParams[CN_SP_LL] = CN_SP_LL_FULLLOG;
+            if (loglevel == CN_SP_LL_NOLOG) {SearchParams[CN_SP_LL] = CN_SP_LL_NOLOG;}
+            else if (loglevel == CN_SP_LL_SMALLLOG) {SearchParams[CN_SP_LL] = CN_SP_LL_SMALLLOG;}
+            else if (loglevel == CN_SP_LL_FULLLOG) {SearchParams[CN_SP_LL] = CN_SP_LL_FULLLOG;}
+            else if (loglevel == CN_SP_LL_PARTIALLOG) {SearchParams[CN_SP_LL] = CN_SP_LL_PARTIALLOG;}
             else
             {
-                std::cout << "'" << CNS_TAG_LOGLVL <<"' is not correctly specified" << std::endl;
-                std::cout << "Value of '"<< CNS_TAG_LOGLVL <<"' tag was defined to 'short log' (1)." << std::endl;
+                std::cout << "'" << CNS_TAG_LOGLVL <<"' is not correctly specified" << '\n'
+                          << "Available logging value are: " << CN_SP_LL_SMALLLOG << " (short log), "
+                          << CN_SP_LL_PARTIALLOG << " (partial log, prints only final states of opened and closed lists), "
+                          << CN_SP_LL_FULLLOG << " (full log, prints state of of opened and closed lists on every step)\n"
+                          << "Value of '"<< CNS_TAG_LOGLVL <<"' tag was defined to 'short log' (1)." << std::endl;
                 SearchParams[CN_SP_LL] = CN_SP_LL_SMALLLOG;
             }
         }

@@ -75,13 +75,13 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
             addOpen(*it);
         }
 
-        //TODO correct openClose logging
-        //Logger->writeToLogOpenClose(open, close, map.height); //Логгер сам определит писать ему в лог или нет.
+        Logger->writeToLogOpenClose(open, close, map.height); //Логгер сам определит писать ему в лог или нет.
     }
     //Поиск завершился!
     sresult.pathfound = false;
     sresult.nodescreated = closeSize + openSize;
     sresult.numberofsteps = closeSize;
+    Logger->writeToLogOpenClose(open, close, map.height, true); //Логгер сам определит писать ему в лог или нет.
     if (pathfound) {
         sresult.pathfound = true;
         //путь восстанолвенный по обратным указателям (для всех алгоритмов)

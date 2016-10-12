@@ -155,6 +155,11 @@ def get_log_output_filename(task_filename):
     return m.group('name') + "_log.xml"
 
 
+def make_path(exec_filename, input_filename):
+    subprocess.run([exec_filename, input_filename],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+
+
 def make_path_and_picture(exec_filename, input_filename, log_filename, picture_filename, scale=2, picture_format='PNG'):
     code = subprocess.run([exec_filename, input_filename],
                           stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT).returncode
@@ -176,6 +181,7 @@ if __name__ == "__main__":
     parser.add_argument("--test", required=True, help="Путь к папке с заданиями в формате XML или единичному файлу")
     parser.add_argument("--scale", required=False, type=int,
                         help="Масштаб карты, относительно заданного в файле", default=2)
+    parser.add_argument("--no_image", required=False, help="Не генерировать изображения к результату", type=bool)
     args = parser.parse_args()
     exec_path = path.abspath(args.exe)
     if not path.isfile(exec_path):
@@ -200,6 +206,9 @@ if __name__ == "__main__":
 
     with multiprocessing.Pool(min(SETTINGS['max_treads'], cpu_count())) as pool:
         for inp_path, val in tasks.items():
-            pool.apply_async(make_path_and_picture, [exec_path, inp_path, val[0], val[1], args.scale])
+            if args.no_image:
+                pool.apply_async(make_path, [exec_path, inp_path])
+            else:
+                pool.apply_async(make_path_and_picture, [exec_path, inp_path, val[0], val[1], args.scale])
         pool.close()
         pool.join()

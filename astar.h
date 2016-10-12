@@ -7,6 +7,7 @@
 class Astar : public ISearch
 {
     public:
+        Astar();
         Astar(double weight, int BT, int SL, int i);
         ~Astar();
 
