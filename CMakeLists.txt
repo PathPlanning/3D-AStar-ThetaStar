@@ -39,5 +39,5 @@ set(SOURCE_FILES
         dijkstra.cpp
         dijkstra.h
         bfs.cpp
-        bfs.h)
+        bfs.h Queues.cpp Queues.h)
 add_executable(Astar_heights ${SOURCE_FILES})

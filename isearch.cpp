@@ -3,13 +3,13 @@
 
 
 ISearch::ISearch() {
-    //Параметры должны быть корректно переопределены наследниками, в зависимости от того, какая используется "конфигурация" алгоритма
+    //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ" пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     hweight = 1;
     breakingties = CN_SP_BT_GMAX;
     sizelimit = CN_SP_SL_NOLIMIT;
     open = NULL;
     openSize = 0;
-    //sresult определять не надо - у него свой конструктор по умолчанию...
+    //sresult пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ - пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ...
 }
 
 ISearch::~ISearch(void) {
@@ -25,7 +25,7 @@ double ISearch::MoveCost(int start_i, int start_j, int start_h, int fin_i, int f
 }
 
 bool ISearch::stopCriterion() {
-    if (openSize == 0) {
+    if (open->empty()) {
         std::cout << "OPEN list is empty!" << std::endl;
         return true;
     }
@@ -35,10 +35,9 @@ bool ISearch::stopCriterion() {
 SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const EnvironmentOptions &options) {
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
-    open = new NodeList[map.height];
+    open = new ClusteredSets(map.height, breakingties);
+
     Node curNode;
-    for (int i = 0; i < map.height; i++)
-        open[i].List.clear();
     curNode.i = map.start_i;
     curNode.j = map.start_j;
     curNode.z = map.start_h;
@@ -54,10 +53,10 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
     std::vector<Node> successors;
     successors.reserve(26); // Usually every node has no more than 26 successors
     while (!stopCriterion()) {
-        curNode = findMin(map.height);
+        curNode = open->FindMin();
         curIt = &(*(close.insert(curNode).first));
         ++closeSize;
-        open[curNode.i].List.pop_front();
+        open->DeleteMin();
         --openSize;
 
         if (curNode.i == map.goal_i && curNode.j == map.goal_j && curNode.z == map.goal_h) {
@@ -75,55 +74,28 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
             addOpen(*it);
         }
 
-        Logger->writeToLogOpenClose(open, close, map.height); //Логгер сам определит писать ему в лог или нет.
+        //Logger->writeToLogOpenClose(open, close, map.height); //пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ.
     }
-    //Поиск завершился!
+    //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ!
     sresult.pathfound = false;
-    sresult.nodescreated = closeSize + openSize;
-    sresult.numberofsteps = closeSize;
-    Logger->writeToLogOpenClose(open, close, map.height, true); //Логгер сам определит писать ему в лог или нет.
+    sresult.nodescreated = close.size() + open->size();
+    sresult.numberofsteps = close.size();
+    //Logger->writeToLogOpenClose(open, close, map.height, true); //пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ.
     if (pathfound) {
         sresult.pathfound = true;
-        //путь восстанолвенный по обратным указателям (для всех алгоритмов)
+        //пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
         makePrimaryPath(curNode);
         sresult.hppath = &hppath;
         sresult.pathlength = curNode.g;
     }
-    //Т.к. восстановление пути по обратным указателям - неотъемлемая часть алгоритмов, время останавливаем только сейчас!
+    //пїЅ.пїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ!
     end = std::chrono::system_clock::now();
     sresult.time =
             static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()) / 1000000;
-    //перестроенный путь (hplevel, либо lplevel, в зависимости от алгоритма)
+    //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (hplevel, пїЅпїЅпїЅпїЅ lplevel, пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
     if (pathfound)
         makeSecondaryPath(map, curNode);
     return sresult;
-}
-
-Node ISearch::findMin(int size) {
-    Node min;
-    min.F = std::numeric_limits<double>::infinity();
-    for (int i = 0; i < size; i++) {
-        if (!open[i].List.empty())
-            if (open[i].List.begin()->F <= min.F) {
-                if (open[i].List.begin()->F == min.F) {
-                    switch (breakingties) {
-                        case CN_SP_BT_GMAX: {
-                            if (open[i].List.begin()->g >= min.g) {
-                                min = *open[i].List.begin();
-                            }
-                        }
-                        case CN_SP_BT_GMIN: {
-                            if (open[i].List.begin()->g <= min.g) {
-                                min = *open[i].List.begin();
-                            }
-                        }
-                    }
-                } else
-                    min = *open[i].List.begin();
-            }
-    }
-    return min;
-
 }
 
 void ISearch::findSuccessors(Node curNode, const Map &map, const EnvironmentOptions &options, std::vector<Node> &output) {
@@ -164,7 +136,7 @@ void ISearch::makePrimaryPath(Node curNode) {
         current = *current.parent;
     }
     lppath.List.push_front(current);
-    sresult.lppath = &lppath; //здесь у sresult - указатель на константу.
+    sresult.lppath = &lppath; //пїЅпїЅпїЅпїЅпїЅ пїЅ sresult - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 }
 
 void ISearch::makeSecondaryPath(const Map &map, Node curNode) {

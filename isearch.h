@@ -6,6 +6,8 @@
 #include "ilogger.h"
 #include "searchresult.h"
 #include "environmentoptions.h"
+#include "Queues.h"
+
 #include <unordered_set>
 #include <iostream>
 #include <vector>
@@ -26,27 +28,27 @@ public:
     double MoveCost(int start_i, int start_j, int start_h, int fin_i, int fin_j, int fin_h, const EnvironmentOptions &options);
 
 protected:
-    virtual void addOpen(Node newNode) = 0; //каждый поиск по своему добавляет вершины в список OPEN
+    virtual void addOpen(Node newNode) = 0; //РєР°Р¶РґС‹Р№ РїРѕРёСЃРє РїРѕ СЃРІРѕРµРјСѓ РґРѕР±Р°РІР»СЏРµС‚ РІРµСЂС€РёРЅС‹ РІ СЃРїРёСЃРѕРє OPEN
     virtual double computeHFromCellToCell(int start_i, int start_j, int start_h, int fin_i, int fin_j, int fin_h,
-                                          const EnvironmentOptions &options) = 0; //для Дейкстры и BFS этот метод всегда возвращает ноль
-    virtual void findSuccessors(Node curNode, const Map &map, const EnvironmentOptions &options, std::vector<Node> &output);//метод, который ищет соседей текущей вершины, удовлетворяющие параметрам поиска
-    virtual void makePrimaryPath(Node curNode);//строит путь по ссылкам на родителя
+                                          const EnvironmentOptions &options) = 0; //РґР»СЏ Р”РµР№РєСЃС‚СЂС‹ Рё BFS СЌС‚РѕС‚ РјРµС‚РѕРґ РІСЃРµРіРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРѕР»СЊ
+    virtual void findSuccessors(Node curNode, const Map &map, const EnvironmentOptions &options, std::vector<Node> &output);//РјРµС‚РѕРґ, РєРѕС‚РѕСЂС‹Р№ РёС‰РµС‚ СЃРѕСЃРµРґРµР№ С‚РµРєСѓС‰РµР№ РІРµСЂС€РёРЅС‹, СѓРґРѕРІР»РµС‚РІРѕСЂСЏСЋС‰РёРµ РїР°СЂР°РјРµС‚СЂР°Рј РїРѕРёСЃРєР°
+    virtual void makePrimaryPath(Node curNode);//СЃС‚СЂРѕРёС‚ РїСѓС‚СЊ РїРѕ СЃСЃС‹Р»РєР°Рј РЅР° СЂРѕРґРёС‚РµР»СЏ
     virtual void makeSecondaryPath(const Map &map,
                                    Node curNode);
     virtual Node resetParent(Node current, Node parent, const Map &map,
-                             const EnvironmentOptions &options) { return current; }//меняет родителя, нужен для алгоритма Theta*
+                             const EnvironmentOptions &options) { return current; }//РјРµРЅСЏРµС‚ СЂРѕРґРёС‚РµР»СЏ, РЅСѓР¶РµРЅ РґР»СЏ Р°Р»РіРѕСЂРёС‚РјР° Theta*
     virtual bool stopCriterion();
 
-    SearchResult sresult; //результат поиска
+    SearchResult sresult; //СЂРµР·СѓР»СЊС‚Р°С‚ РїРѕРёСЃРєР°
     // TODO correct path storage. Better to place them on the heap.
-    NodeList lppath, hppath; //списки OPEN, CLOSE и путь
+    NodeList lppath, hppath; //СЃРїРёСЃРєРё OPEN, CLOSE Рё РїСѓС‚СЊ
     Node lastnode;
     std::unordered_set<Node> close;
-    NodeList *open;
+    iOpen *open;
     int openSize;
-    int sizelimit; //ограничение на размер OPEN
-    float hweight; //вес эвристики
-    int breakingties; //критерий выбора очередной вершины из OPEN, когда F-значений равны
+    int sizelimit; //РѕРіСЂР°РЅРёС‡РµРЅРёРµ РЅР° СЂР°Р·РјРµСЂ OPEN
+    float hweight; //РІРµСЃ СЌРІСЂРёСЃС‚РёРєРё
+    int breakingties; //РєСЂРёС‚РµСЂРёР№ РІС‹Р±РѕСЂР° РѕС‡РµСЂРµРґРЅРѕР№ РІРµСЂС€РёРЅС‹ РёР· OPEN, РєРѕРіРґР° F-Р·РЅР°С‡РµРЅРёР№ СЂР°РІРЅС‹
 
 };
 
