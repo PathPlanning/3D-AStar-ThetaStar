@@ -70,8 +70,8 @@ bool Map::getMap(const char *FileName) {
     TiXmlElement *root = 0, *map = 0, *element = 0;
     TiXmlNode *mapnode = 0;
 
-    std::string value; //имя тега
-    std::stringstream stream; //содердимое (текст) тега
+    std::string value; //ГЁГ¬Гї ГІГҐГЈГ 
+    std::stringstream stream; //Г±Г®Г¤ГҐГ°Г¤ГЁГ¬Г®ГҐ (ГІГҐГЄГ±ГІ) ГІГҐГЈГ 
 
     bool hasGridMem = false, hasGrid = false, hasHeight = false, hasWidth = false, hasSTX = false, hasSTY = false;
     bool hasSTZ = false, hasFINX = false, hasFINY = false, hasFINZ = false, hasSTH = false, hasFINH = false;
@@ -98,31 +98,31 @@ bool Map::getMap(const char *FileName) {
         return false;
     }
 
-    //Идеология инициализация "карты":
-    //Перебираем последовательно внутренности тега "карта"
-    //Если впервые попалось корректное значение старта (х, у), финиша (х, у), высоты и ширины - запонимаем их
-    //Если старт-х, финиш-х попадаются раньше ширины - ошибка!
-    //Если старт-у, финиш-у попадаются раньше высоты - ошибка!
-    //Если попадаются дубликаты (теги повторяются), после того как мы уже запомнили значения, - выводим Warning
-    //т.е. ВСЕГДА запоминается и используется ТОЛЬКО первое (корректно определенное) значение старта (х, у), финиша (х, у), высоты, ширины
+    //Г€Г¤ГҐГ®Г«Г®ГЈГЁГї ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§Г Г¶ГЁГї "ГЄГ Г°ГІГ»":
+    //ГЏГҐГ°ГҐГЎГЁГ°Г ГҐГ¬ ГЇГ®Г±Г«ГҐГ¤Г®ГўГ ГІГҐГ«ГјГ­Г® ГўГ­ГіГІГ°ГҐГ­Г­Г®Г±ГІГЁ ГІГҐГЈГ  "ГЄГ Г°ГІГ "
+    //Г…Г±Г«ГЁ ГўГЇГҐГ°ГўГ»ГҐ ГЇГ®ГЇГ Г«Г®Г±Гј ГЄГ®Г°Г°ГҐГЄГІГ­Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ Г±ГІГ Г°ГІГ  (Гµ, Гі), ГґГЁГ­ГЁГёГ  (Гµ, Гі), ГўГ»Г±Г®ГІГ» ГЁ ГёГЁГ°ГЁГ­Г» - Г§Г ГЇГ®Г­ГЁГ¬Г ГҐГ¬ ГЁГµ
+    //Г…Г±Г«ГЁ Г±ГІГ Г°ГІ-Гµ, ГґГЁГ­ГЁГё-Гµ ГЇГ®ГЇГ Г¤Г ГѕГІГ±Гї Г°Г Г­ГјГёГҐ ГёГЁГ°ГЁГ­Г» - Г®ГёГЁГЎГЄГ !
+    //Г…Г±Г«ГЁ Г±ГІГ Г°ГІ-Гі, ГґГЁГ­ГЁГё-Гі ГЇГ®ГЇГ Г¤Г ГѕГІГ±Гї Г°Г Г­ГјГёГҐ ГўГ»Г±Г®ГІГ» - Г®ГёГЁГЎГЄГ !
+    //Г…Г±Г«ГЁ ГЇГ®ГЇГ Г¤Г ГѕГІГ±Гї Г¤ГіГЎГ«ГЁГЄГ ГІГ» (ГІГҐГЈГЁ ГЇГ®ГўГІГ®Г°ГїГѕГІГ±Гї), ГЇГ®Г±Г«ГҐ ГІГ®ГЈГ® ГЄГ ГЄ Г¬Г» ГіГ¦ГҐ Г§Г ГЇГ®Г¬Г­ГЁГ«ГЁ Г§Г­Г Г·ГҐГ­ГЁГї, - ГўГ»ГўГ®Г¤ГЁГ¬ Warning
+    //ГІ.ГҐ. Г‚Г‘Г…ГѓГ„ГЂ Г§Г ГЇГ®Г¬ГЁГ­Г ГҐГІГ±Гї ГЁ ГЁГ±ГЇГ®Г«ГјГ§ГіГҐГІГ±Гї Г’ГЋГ‹ГњГЉГЋ ГЇГҐГ°ГўГ®ГҐ (ГЄГ®Г°Г°ГҐГЄГІГ­Г® Г®ГЇГ°ГҐГ¤ГҐГ«ГҐГ­Г­Г®ГҐ) Г§Г­Г Г·ГҐГ­ГЁГҐ Г±ГІГ Г°ГІГ  (Гµ, Гі), ГґГЁГ­ГЁГёГ  (Гµ, Гі), ГўГ»Г±Г®ГІГ», ГёГЁГ°ГЁГ­Г»
 
 
     for (mapnode = map->FirstChild(); mapnode; mapnode = map->IterateChildren(mapnode)) {
         if (mapnode->Type() == TiXmlNode::TINYXML_COMMENT) { // Skipping comments
             continue;
         }
-        element = mapnode->ToElement(); //очередной элемент (тег)
-        value = mapnode->Value(); // имя тега
-        std::transform(value.begin(), value.end(), value.begin(), ::tolower); //"хорошее имя тега"
+        element = mapnode->ToElement(); //Г®Г·ГҐГ°ГҐГ¤Г­Г®Г© ГЅГ«ГҐГ¬ГҐГ­ГІ (ГІГҐГЈ)
+        value = mapnode->Value(); // ГЁГ¬Гї ГІГҐГЈГ 
+        std::transform(value.begin(), value.end(), value.begin(), ::tolower); //"ГµГ®Г°Г®ГёГҐГҐ ГЁГ¬Гї ГІГҐГЈГ "
 
-        stream.str(""); //очищаем
-        stream.clear(); //буфер
+        stream.str(""); //Г®Г·ГЁГ№Г ГҐГ¬
+        stream.clear(); //ГЎГіГґГҐГ°
         stream
-                << element->GetText(); //и кладем в него содержимое (текст) тега (внимание: в теге "грид" нет текста - там вложенные теги, там будет NULL. Так что беспокоится не надо, всё под контролем!
+                << element->GetText(); //ГЁ ГЄГ«Г Г¤ГҐГ¬ Гў Г­ГҐГЈГ® Г±Г®Г¤ГҐГ°Г¦ГЁГ¬Г®ГҐ (ГІГҐГЄГ±ГІ) ГІГҐГЈГ  (ГўГ­ГЁГ¬Г Г­ГЁГҐ: Гў ГІГҐГЈГҐ "ГЈГ°ГЁГ¤" Г­ГҐГІ ГІГҐГЄГ±ГІГ  - ГІГ Г¬ ГўГ«Г®Г¦ГҐГ­Г­Г»ГҐ ГІГҐГЈГЁ, ГІГ Г¬ ГЎГіГ¤ГҐГІ NULL. Г’Г ГЄ Г·ГІГ® ГЎГҐГ±ГЇГ®ГЄГ®ГЁГІГ±Гї Г­ГҐ Г­Г Г¤Г®, ГўГ±Вё ГЇГ®Г¤ ГЄГ®Г­ГІГ°Г®Г«ГҐГ¬!
 
-        //1. Заготовка под грид.
+        //1. Г‡Г ГЈГ®ГІГ®ГўГЄГ  ГЇГ®Г¤ ГЈГ°ГЁГ¤.
         if (!hasGridMem && hasHeight &&
-            hasWidth) //в какой-то момент оказалось, что есть уже высота и ширина - создаем грид
+            hasWidth) //Гў ГЄГ ГЄГ®Г©-ГІГ® Г¬Г®Г¬ГҐГ­ГІ Г®ГЄГ Г§Г Г«Г®Г±Гј, Г·ГІГ® ГҐГ±ГІГј ГіГ¦ГҐ ГўГ»Г±Г®ГІГ  ГЁ ГёГЁГ°ГЁГ­Г  - Г±Г®Г§Г¤Г ГҐГ¬ ГЈГ°ГЁГ¤
         {
             Grid = new int *[height];
             for (int i = 0; i < height; i++)
@@ -130,19 +130,19 @@ bool Map::getMap(const char *FileName) {
             hasGridMem = true;
         }
 
-        //2. Высота
+        //2. Г‚Г»Г±Г®ГІГ 
         if (value == CNS_TAG_HEIGHT) {
-            if (hasHeight) //Дубль. Высота уже была.
+            if (hasHeight) //Г„ГіГЎГ«Гј. Г‚Г»Г±Г®ГІГ  ГіГ¦ГҐ ГЎГ»Г«Г .
             {
                 std::cout << "Warning! Duplicate '" << CNS_TAG_HEIGHT << "' encountered." << std::endl;
                 std::cout << "Only first value of '" << CNS_TAG_HEIGHT << "' =" << height << "will be used."
                           << std::endl;
-            } else//Высоты еще не было. Или была - но плохая. В общем - пока не инициализировали...
+            } else//Г‚Г»Г±Г®ГІГ» ГҐГ№ГҐ Г­ГҐ ГЎГ»Г«Г®. Г€Г«ГЁ ГЎГ»Г«Г  - Г­Г® ГЇГ«Г®ГµГ Гї. Г‚ Г®ГЎГ№ГҐГ¬ - ГЇГ®ГЄГ  Г­ГҐ ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§ГЁГ°Г®ГўГ Г«ГЁ...
             {
-                if (!((stream >> height) && (height > 0)))//sstream >> height преобразовывает строку в число (int).
-                    //Если не может преобазовать (строка косячная) - значение height остается предыдущим.
-                    //То есть - по умолчанию (из конструктора) 0.
-                    //То же самое касается и других преобразований ниже...
+                if (!((stream >> height) && (height > 0)))//sstream >> height ГЇГ°ГҐГ®ГЎГ°Г Г§Г®ГўГ»ГўГ ГҐГІ Г±ГІГ°Г®ГЄГі Гў Г·ГЁГ±Г«Г® (int).
+                    //Г…Г±Г«ГЁ Г­ГҐ Г¬Г®Г¦ГҐГІ ГЇГ°ГҐГ®ГЎГ Г§Г®ГўГ ГІГј (Г±ГІГ°Г®ГЄГ  ГЄГ®Г±ГїГ·Г­Г Гї) - Г§Г­Г Г·ГҐГ­ГЁГҐ height Г®Г±ГІГ ГҐГІГ±Гї ГЇГ°ГҐГ¤Г»Г¤ГіГ№ГЁГ¬.
+                    //Г’Г® ГҐГ±ГІГј - ГЇГ® ГіГ¬Г®Г«Г·Г Г­ГЁГѕ (ГЁГ§ ГЄГ®Г­Г±ГІГ°ГіГЄГІГ®Г°Г ) 0.
+                    //Г’Г® Г¦ГҐ Г±Г Г¬Г®ГҐ ГЄГ Г±Г ГҐГІГ±Гї ГЁ Г¤Г°ГіГЈГЁГµ ГЇГ°ГҐГ®ГЎГ°Г Г§Г®ГўГ Г­ГЁГ© Г­ГЁГ¦ГҐ...
                 {
                     std::cout << "Warning! Invalid value of '" << CNS_TAG_HEIGHT
                               << "' tag encountered (or could not convert to integer)." << std::endl;
@@ -153,16 +153,16 @@ bool Map::getMap(const char *FileName) {
                     hasHeight = true;
             }
         }
-            //Закончили с высотой
+            //Г‡Г ГЄГ®Г­Г·ГЁГ«ГЁ Г± ГўГ»Г±Г®ГІГ®Г©
 
 
-            //3. Ширина
+            //3. ГГЁГ°ГЁГ­Г 
         else if (value == CNS_TAG_WIDTH) {
-            if (hasWidth) //Дубль. Ширина уже была.
+            if (hasWidth) //Г„ГіГЎГ«Гј. ГГЁГ°ГЁГ­Г  ГіГ¦ГҐ ГЎГ»Г«Г .
             {
                 std::cout << "Warning! Duplicate '" << CNS_TAG_WIDTH << "' encountered." << std::endl;
                 std::cout << "Only first value of '" << CNS_TAG_WIDTH << "' =" << width << "will be used." << std::endl;
-            } else //Ширины еще не было. Или была - но плохая. В общем - пока не инициализировали...
+            } else //ГГЁГ°ГЁГ­Г» ГҐГ№ГҐ Г­ГҐ ГЎГ»Г«Г®. Г€Г«ГЁ ГЎГ»Г«Г  - Г­Г® ГЇГ«Г®ГµГ Гї. Г‚ Г®ГЎГ№ГҐГ¬ - ГЇГ®ГЄГ  Г­ГҐ ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§ГЁГ°Г®ГўГ Г«ГЁ...
             {
                 if (!((stream >> width) && (width > 0))) {
                     std::cout << "Warning! Invalid value of '" << CNS_TAG_WIDTH
@@ -175,16 +175,16 @@ bool Map::getMap(const char *FileName) {
                     hasWidth = true;
             }
         }
-            //Закончили с шириной
+            //Г‡Г ГЄГ®Г­Г·ГЁГ«ГЁ Г± ГёГЁГ°ГЁГ­Г®Г©
 
         else if (value == CNS_TAG_MAXALT) {
-            if (hasMAXALT) //Дубль. Максимальная высота карты уже была
+            if (hasMAXALT) //Г„ГіГЎГ«Гј. ГЊГ ГЄГ±ГЁГ¬Г Г«ГјГ­Г Гї ГўГ»Г±Г®ГІГ  ГЄГ Г°ГІГ» ГіГ¦ГҐ ГЎГ»Г«Г 
             {
                 std::cout << "Warning! Duplicate '" << CNS_TAG_MAXALT << "' encountered." << std::endl;
                 std::cout << "Only first value of '" << CNS_TAG_MAXALT << "' =" << altitude << "will be used."
                           << std::endl;
             } else {
-                if (!((stream >> altitude) && (altitude > 0))) {
+                if (!((stream >> altitude) && (altitude >= 0))) {
                     std::cout << "Warning! Invalid value of '" << CNS_TAG_MAXALT
                               << "' tag encountered (or could not convert to integer)." << std::endl;
                     std::cout << "Value of '" << CNS_TAG_MAXALT << "' tag should be an integer AND >=0" << std::endl;
@@ -199,13 +199,13 @@ bool Map::getMap(const char *FileName) {
                 }
             }
         } else if (value == CNS_TAG_ALTLIM) {
-            if (hasALTLIM) //Дубль. Ограничения на высоту
+            if (hasALTLIM) //Г„ГіГЎГ«Гј. ГЋГЈГ°Г Г­ГЁГ·ГҐГ­ГЁГї Г­Г  ГўГ»Г±Г®ГІГі
             {
                 std::cout << "Warning! Duplicate '" << CNS_TAG_ALTLIM << "' encountered." << std::endl;
                 std::cout << "Only first value of '" << CNS_TAG_ALTLIM << "will be used." << std::endl;
             } else {
                 hasALTLIM = true;
-                if (!((element->Attribute(CNS_TAG_ALTLIM_ATTR_MIN, &min_altitude_limit)) && (min_altitude_limit > 0))) {
+                if (!((element->Attribute(CNS_TAG_ALTLIM_ATTR_MIN, &min_altitude_limit)) && (min_altitude_limit >= 0))) {
                     std::cout << "Warning! Invalid value of '" << CNS_TAG_ALTLIM_ATTR_MIN << "' attribute of '"
                               << CNS_TAG_ALTLIM << "' tag encountered (or could not convert to integer)." << std::endl;
                     std::cout << "Value of '" << CNS_TAG_ALTLIM_ATTR_MIN << "' tag should be an integer AND >=0"
@@ -228,20 +228,20 @@ bool Map::getMap(const char *FileName) {
             }
         }
 
-            //4. Старт-Икс
+            //4. Г‘ГІГ Г°ГІ-Г€ГЄГ±
         else if (value == CNS_TAG_STX) {
-            if (!hasWidth) //Тег "старт-х" встретился раньше чем "ширина" - ошибка!
+            if (!hasWidth) //Г’ГҐГЈ "Г±ГІГ Г°ГІ-Гµ" ГўГ±ГІГ°ГҐГІГЁГ«Г±Гї Г°Г Г­ГјГёГҐ Г·ГҐГ¬ "ГёГЁГ°ГЁГ­Г " - Г®ГёГЁГЎГЄГ !
             {
                 std::cout << "Error! '" << CNS_TAG_STX << "' tag encountered before '" << CNS_TAG_WIDTH << "' tag."
                           << std::endl;
                 return false;
             }
 
-            if (hasSTX) //Дубль. Старт-ИКС уже был.
+            if (hasSTX) //Г„ГіГЎГ«Гј. Г‘ГІГ Г°ГІ-Г€ГЉГ‘ ГіГ¦ГҐ ГЎГ»Г«.
             {
                 std::cout << "Warning! Duplicate '" << CNS_TAG_STX << "' encountered." << std::endl;
                 std::cout << "Only first value of '" << CNS_TAG_STX << "' =" << start_j << "will be used." << std::endl;
-            } else //Старт-ИКС еще не встречался (или встречался, но корявый), в общем - надо пытаться инициализировать
+            } else //Г‘ГІГ Г°ГІ-Г€ГЉГ‘ ГҐГ№ГҐ Г­ГҐ ГўГ±ГІГ°ГҐГ·Г Г«Г±Гї (ГЁГ«ГЁ ГўГ±ГІГ°ГҐГ·Г Г«Г±Гї, Г­Г® ГЄГ®Г°ГїГўГ»Г©), Гў Г®ГЎГ№ГҐГ¬ - Г­Г Г¤Г® ГЇГ»ГІГ ГІГјГ±Гї ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§ГЁГ°Г®ГўГ ГІГј
             {
                 if (!(stream >> start_j && start_j >= 0 && start_j < width)) {
                     std::cout << "Warning! Invalid value of '" << CNS_TAG_STX
@@ -254,23 +254,23 @@ bool Map::getMap(const char *FileName) {
                     hasSTX = true;
             }
         }
-            //Закончили со Cтарт-Икс
+            //Г‡Г ГЄГ®Г­Г·ГЁГ«ГЁ Г±Г® CГІГ Г°ГІ-Г€ГЄГ±
 
 
-            //5. Старт-Игрек
+            //5. Г‘ГІГ Г°ГІ-Г€ГЈГ°ГҐГЄ
         else if (value == CNS_TAG_STY) {
-            if (!hasHeight) //Тег "старт-y" встретился раньше чем "высота" - ошибка!
+            if (!hasHeight) //Г’ГҐГЈ "Г±ГІГ Г°ГІ-y" ГўГ±ГІГ°ГҐГІГЁГ«Г±Гї Г°Г Г­ГјГёГҐ Г·ГҐГ¬ "ГўГ»Г±Г®ГІГ " - Г®ГёГЁГЎГЄГ !
             {
                 std::cout << "Error! '" << CNS_TAG_STY << "' tag encountered before '" << CNS_TAG_HEIGHT << "' tag."
                           << std::endl;
                 return false;
             }
 
-            if (hasSTY) //Дубль. Старт-ИКС уже был.
+            if (hasSTY) //Г„ГіГЎГ«Гј. Г‘ГІГ Г°ГІ-Г€ГЉГ‘ ГіГ¦ГҐ ГЎГ»Г«.
             {
                 std::cout << "Warning! Duplicate '" << CNS_TAG_STY << "' encountered." << std::endl;
                 std::cout << "Only first value of '" << CNS_TAG_STY << "' =" << start_i << "will be used." << std::endl;
-            } else //Старт-Игрек еще не встречался (или встречался, но корявый), в общем - надо пытаться инициализировать
+            } else //Г‘ГІГ Г°ГІ-Г€ГЈГ°ГҐГЄ ГҐГ№ГҐ Г­ГҐ ГўГ±ГІГ°ГҐГ·Г Г«Г±Гї (ГЁГ«ГЁ ГўГ±ГІГ°ГҐГ·Г Г«Г±Гї, Г­Г® ГЄГ®Г°ГїГўГ»Г©), Гў Г®ГЎГ№ГҐГ¬ - Г­Г Г¤Г® ГЇГ»ГІГ ГІГјГ±Гї ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§ГЁГ°Г®ГўГ ГІГј
             {
                 if (!(stream >> start_i && start_i >= 0 && start_i < height)) {
                     std::cout << "Warning! Invalid value of '" << CNS_TAG_STY
@@ -283,15 +283,15 @@ bool Map::getMap(const char *FileName) {
                     hasSTY = true;
             }
         }
-            //Закончили со Cтарт-Игрек
+            //Г‡Г ГЄГ®Г­Г·ГЁГ«ГЁ Г±Г® CГІГ Г°ГІ-Г€ГЈГ°ГҐГЄ
 
             // Start Z
         else if (value == CNS_TAG_STZ) {
-            if (hasSTZ) //Дубль. Старт-зет уже был.
+            if (hasSTZ) //Г„ГіГЎГ«Гј. Г‘ГІГ Г°ГІ-Г§ГҐГІ ГіГ¦ГҐ ГЎГ»Г«.
             {
                 std::cout << "Warning! Duplicate '" << CNS_TAG_STZ << "' encountered." << std::endl;
                 std::cout << "Only first value of '" << CNS_TAG_STZ << "' =" << start_h << "will be used." << std::endl;
-            } else //Старт-зет еще не встречался (или встречался, но корявый), в общем - надо пытаться инициализировать
+            } else //Г‘ГІГ Г°ГІ-Г§ГҐГІ ГҐГ№ГҐ Г­ГҐ ГўГ±ГІГ°ГҐГ·Г Г«Г±Гї (ГЁГ«ГЁ ГўГ±ГІГ°ГҐГ·Г Г«Г±Гї, Г­Г® ГЄГ®Г°ГїГўГ»Г©), Гў Г®ГЎГ№ГҐГ¬ - Г­Г Г¤Г® ГЇГ»ГІГ ГІГјГ±Гї ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§ГЁГ°Г®ГўГ ГІГј
             {
                 if (!(stream >> start_h && start_h >= 0)) {
                     std::cout << "Warning! Invalid value of '" << CNS_TAG_STZ
@@ -305,20 +305,20 @@ bool Map::getMap(const char *FileName) {
             }
         }
 
-            //Финиш-Икс
+            //Г”ГЁГ­ГЁГё-Г€ГЄГ±
         else if (value == CNS_TAG_FINX) {
-            if (!hasWidth) //Тег "финиш-икс" встретился раньше чем "ширина" - ошибка!
+            if (!hasWidth) //Г’ГҐГЈ "ГґГЁГ­ГЁГё-ГЁГЄГ±" ГўГ±ГІГ°ГҐГІГЁГ«Г±Гї Г°Г Г­ГјГёГҐ Г·ГҐГ¬ "ГёГЁГ°ГЁГ­Г " - Г®ГёГЁГЎГЄГ !
             {
                 std::cout << "Error! '" << CNS_TAG_FINX << "' tag encountered before '" << CNS_TAG_WIDTH << "' tag."
                           << std::endl;
                 return false;
             }
 
-            if (hasFINX) //Дубль. финиш-икс уже был.
+            if (hasFINX) //Г„ГіГЎГ«Гј. ГґГЁГ­ГЁГё-ГЁГЄГ± ГіГ¦ГҐ ГЎГ»Г«.
             {
                 std::cout << "Warning! Duplicate '" << CNS_TAG_FINX << "' encountered." << std::endl;
                 std::cout << "Only first value of '" << CNS_TAG_FINX << "' =" << goal_j << "will be used." << std::endl;
-            } else //Финиш-икс еще не встречался (или встречался, но корявый), в общем - надо пытаться инициализировать
+            } else //Г”ГЁГ­ГЁГё-ГЁГЄГ± ГҐГ№ГҐ Г­ГҐ ГўГ±ГІГ°ГҐГ·Г Г«Г±Гї (ГЁГ«ГЁ ГўГ±ГІГ°ГҐГ·Г Г«Г±Гї, Г­Г® ГЄГ®Г°ГїГўГ»Г©), Гў Г®ГЎГ№ГҐГ¬ - Г­Г Г¤Г® ГЇГ»ГІГ ГІГјГ±Гї ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§ГЁГ°Г®ГўГ ГІГј
             {
                 if (!(stream >> goal_j && goal_j >= 0 && goal_j < width)) {
                     std::cout << "Warning! Invalid value of '" << CNS_TAG_FINX
@@ -331,23 +331,23 @@ bool Map::getMap(const char *FileName) {
                     hasFINX = true;
             }
         }
-            //Закончили со Финиш-Икс
+            //Г‡Г ГЄГ®Г­Г·ГЁГ«ГЁ Г±Г® Г”ГЁГ­ГЁГё-Г€ГЄГ±
 
 
-            //Финиш-Игрек
+            //Г”ГЁГ­ГЁГё-Г€ГЈГ°ГҐГЄ
         else if (value == CNS_TAG_FINY) {
-            if (!hasHeight) //Тег "финиш-игрек" встретился раньше чем "высота" - ошибка!
+            if (!hasHeight) //Г’ГҐГЈ "ГґГЁГ­ГЁГё-ГЁГЈГ°ГҐГЄ" ГўГ±ГІГ°ГҐГІГЁГ«Г±Гї Г°Г Г­ГјГёГҐ Г·ГҐГ¬ "ГўГ»Г±Г®ГІГ " - Г®ГёГЁГЎГЄГ !
             {
                 std::cout << "Error! '" << CNS_TAG_FINY << "' tag encountered before '" << CNS_TAG_HEIGHT << "' tag."
                           << std::endl;
                 return false;
             }
 
-            if (hasFINY) //Дубль. Финиш-игрек уже был.
+            if (hasFINY) //Г„ГіГЎГ«Гј. Г”ГЁГ­ГЁГё-ГЁГЈГ°ГҐГЄ ГіГ¦ГҐ ГЎГ»Г«.
             {
                 std::cout << "Warning! Duplicate '" << CNS_TAG_FINY << "' encountered." << std::endl;
                 std::cout << "Only first value of '" << CNS_TAG_FINY << "' =" << goal_i << "will be used." << std::endl;
-            } else //Финиш-Игрек еще не встречался (или встречался, но корявый), в общем - надо пытаться инициализировать
+            } else //Г”ГЁГ­ГЁГё-Г€ГЈГ°ГҐГЄ ГҐГ№ГҐ Г­ГҐ ГўГ±ГІГ°ГҐГ·Г Г«Г±Гї (ГЁГ«ГЁ ГўГ±ГІГ°ГҐГ·Г Г«Г±Гї, Г­Г® ГЄГ®Г°ГїГўГ»Г©), Гў Г®ГЎГ№ГҐГ¬ - Г­Г Г¤Г® ГЇГ»ГІГ ГІГјГ±Гї ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§ГЁГ°Г®ГўГ ГІГј
             {
                 if (!(stream >> goal_i && goal_i >= 0 && goal_i < height)) {
                     std::cout << "Warning! Invalid value of '" << CNS_TAG_FINY
@@ -360,11 +360,11 @@ bool Map::getMap(const char *FileName) {
                     hasFINY = true;
             }
         } else if (value == CNS_TAG_FINZ) { // Finish Z
-            if (hasFINZ) //Дубль. Финиш-игрек уже был.
+            if (hasFINZ) //Г„ГіГЎГ«Гј. Г”ГЁГ­ГЁГё-ГЁГЈГ°ГҐГЄ ГіГ¦ГҐ ГЎГ»Г«.
             {
                 std::cout << "Warning! Duplicate '" << CNS_TAG_FINZ << "' encountered." << std::endl;
                 std::cout << "Only first value of '" << CNS_TAG_FINZ << "' =" << goal_h << "will be used." << std::endl;
-            } else //Финиш-Игрек еще не встречался (или встречался, но корявый), в общем - надо пытаться инициализировать
+            } else //Г”ГЁГ­ГЁГё-Г€ГЈГ°ГҐГЄ ГҐГ№ГҐ Г­ГҐ ГўГ±ГІГ°ГҐГ·Г Г«Г±Гї (ГЁГ«ГЁ ГўГ±ГІГ°ГҐГ·Г Г«Г±Гї, Г­Г® ГЄГ®Г°ГїГўГ»Г©), Гў Г®ГЎГ№ГҐГ¬ - Г­Г Г¤Г® ГЇГ»ГІГ ГІГјГ±Гї ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§ГЁГ°Г®ГўГ ГІГј
             {
                 if (!(stream >> goal_h && goal_h >= 0)) {
                     std::cout << "Warning! Invalid value of '" << CNS_TAG_FINZ
@@ -377,9 +377,9 @@ bool Map::getMap(const char *FileName) {
                     hasFINZ = true;
             }
         }
-            //Закончили с Финиш-Зет
+            //Г‡Г ГЄГ®Г­Г·ГЁГ«ГЁ Г± Г”ГЁГ­ГЁГё-Г‡ГҐГІ
 
-            //Грид
+            //ГѓГ°ГЁГ¤
         else if (value == CNS_TAG_GRID) {
             hasGrid = true;
             if (!(hasHeight && hasWidth)) {
@@ -387,7 +387,7 @@ bool Map::getMap(const char *FileName) {
                           << CNS_TAG_GRID << "'tag encountered!" << std::endl;
                 return false;
             }
-            element = mapnode->FirstChildElement(); //переходим от "грида" к "строкам грида"
+            element = mapnode->FirstChildElement(); //ГЇГҐГ°ГҐГµГ®Г¤ГЁГ¬ Г®ГІ "ГЈГ°ГЁГ¤Г " ГЄ "Г±ГІГ°Г®ГЄГ Г¬ ГЈГ°ГЁГ¤Г "
             int val, grid_j;
             for (int grid_i = 0; grid_i < height; ++grid_i) {
                 if (!element) {
@@ -402,7 +402,7 @@ bool Map::getMap(const char *FileName) {
                 std::string str = element->GetText();
                 std::vector<std::string> elems = split(str, ' ');
                 grid_j = 0;
-                if (elems.size() > 0)//проверка на то, что тег row не пустой
+                if (elems.size() > 0)//ГЇГ°Г®ГўГҐГ°ГЄГ  Г­Г  ГІГ®, Г·ГІГ® ГІГҐГЈ row Г­ГҐ ГЇГіГ±ГІГ®Г©
                     for (; grid_j < width && grid_j < elems.size(); ++grid_j) {
                         stream.str("");
                         stream.clear();
@@ -421,14 +421,14 @@ bool Map::getMap(const char *FileName) {
             }
         }
     }
-    //Закончили с гридом
-    if (!hasGrid)//проверка на то, что в файле нет тега grid
+    //Г‡Г ГЄГ®Г­Г·ГЁГ«ГЁ Г± ГЈГ°ГЁГ¤Г®Г¬
+    if (!hasGrid)//ГЇГ°Г®ГўГҐГ°ГЄГ  Г­Г  ГІГ®, Г·ГІГ® Гў ГґГ Г©Г«ГҐ Г­ГҐГІ ГІГҐГЈГ  grid
     {
         std::cout << "Error! There is no tag 'grid' in xml-file!\n";
         return false;
     }
     if (!(hasFINX && hasFINY && hasSTX &&
-          hasSTY))//Проверка на то, что так и не удалось считать нормальный старт и финиш.
+          hasSTY))//ГЏГ°Г®ГўГҐГ°ГЄГ  Г­Г  ГІГ®, Г·ГІГ® ГІГ ГЄ ГЁ Г­ГҐ ГіГ¤Г Г«Г®Г±Гј Г±Г·ГЁГІГ ГІГј Г­Г®Г°Г¬Г Г«ГјГ­Г»Г© Г±ГІГ Г°ГІ ГЁ ГґГЁГ­ГЁГё.
         return false;
 
     if (!(hasFINZ && hasSTZ)) {
@@ -456,7 +456,7 @@ bool Map::getMap(const char *FileName) {
     }
 
     if (goal_h < min_altitude_limit || goal_h > max_altitude_limit) {
-        std::cout << "Error! Goal cell is on forbidden altitude: " << start_h
+        std::cout << "Error! Goal cell is on forbidden altitude: " << goal_h
                   << ", but allowed only alltitude between " << min_altitude_limit << " and " << max_altitude_limit
                   << ". Please change goal cell's altitude or altitude limits." << std::endl;
         return false;
