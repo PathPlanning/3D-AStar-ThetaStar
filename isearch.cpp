@@ -14,7 +14,7 @@ ISearch::ISearch() {
 
 ISearch::~ISearch(void) {
     if (open) {
-        delete[]open;
+        delete open;
     }
 }
 
