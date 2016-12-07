@@ -47,7 +47,6 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
     curNode.parent = nullptr;
 
     addOpen(curNode);
-    int closeSize = 0;
     bool pathfound = false;
     const Node *curIt;
     std::vector<Node> successors;
@@ -55,9 +54,7 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
     while (!stopCriterion()) {
         curNode = open->FindMin();
         curIt = &(*(close.insert(curNode).first));
-        ++closeSize;
         open->DeleteMin();
-        --openSize;
 
         if (curNode.i == map.goal_i && curNode.j == map.goal_j && curNode.z == map.goal_h) {
             pathfound = true;
@@ -69,7 +66,7 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
         for (auto it = successors.begin(); it != successors.end(); ++it) {
             it->parent = curIt;
             it->H = computeHFromCellToCell(it->i, it->j, it->z, map.goal_i, map.goal_j, map.goal_h, options);
-            *it = resetParent(*it, *it->parent, map, options);
+            *it = resetParent(*it, *(it->parent), map, options);
             it->F = it->g + hweight * it->H;
             addOpen(*it);
         }
@@ -93,8 +90,7 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
     sresult.time =
             static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()) / 1000000;
     //������������� ���� (hplevel, ���� lplevel, � ����������� �� ���������)
-    if (pathfound)
-        makeSecondaryPath(map, curNode);
+    if (pathfound) makeSecondaryPath(map, curNode);
     return sresult;
 }
 

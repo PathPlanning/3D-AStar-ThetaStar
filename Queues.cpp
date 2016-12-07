@@ -145,6 +145,7 @@ void ClusteredSets::DeleteMin() {
     }
 
     data[min_pos].erase(loc_mins[min_pos]);
+    --size_;
     Node min;
     if (!data[min_pos].empty()) {
         auto it = data[min_pos].begin();

@@ -12,8 +12,7 @@ double Theta::EuclidDistance(const Node &from, const Node &to, const Environment
 }
 
 Node Theta::resetParent(Node current, Node parent, const Map &map, const EnvironmentOptions &options) {
-    if (!(parent.i == map.start_i && parent.j == map.start_j && parent.z == map.start_h) &&
-            !(current.i == map.start_i && current.j == map.start_j && current.z == map.start_h) &&
+    if (current.parent->parent != nullptr &&
             (parent.parent->g + EuclidDistance(*(parent.parent), current, options) - current.g) < computation_eps
         && LineOfSight(map).line_of_sight(*(parent.parent), current)) {
 
@@ -34,7 +33,7 @@ void Theta::makeSecondaryPath(const Map &map, Node curNode) {
         cur = it;
         liner.append_line(*cur, *(++it));
     }
-    sresult.lppath = &lppath; //здесь у sresult - указатель на константу.
+    sresult.lppath = &lppath;
 }
 
 void Theta::makePrimaryPath(Node curNode) {

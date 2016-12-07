@@ -6,7 +6,7 @@
 class Theta: public Astar
 {
     public:
-        Theta(float hweight, int breakingties, int sizelimit, int i):Astar(hweight,breakingties, sizelimit, i){/*open=new NodeList[i];*/}
+        Theta(float hweight, int breakingties, int sizelimit, int i):Astar(hweight,breakingties, sizelimit, i){}
         ~Theta(void);
 
 
