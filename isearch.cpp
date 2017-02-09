@@ -1,6 +1,7 @@
 #include "gl_const.h"
 #include "isearch.h"
 
+#include <cmath>
 
 ISearch::ISearch() {
     //��������� ������ ���� ��������� �������������� ������������, � ����������� �� ����, ����� ������������ "������������" ���������
@@ -14,18 +15,29 @@ ISearch::ISearch() {
 
 ISearch::~ISearch(void) {
     if (open) {
-        delete open;
+        delete[] open;
     }
 }
 
 double ISearch::MoveCost(int start_i, int start_j, int start_h, int fin_i, int fin_j, int fin_h,
                          const EnvironmentOptions &options) {
     //Assuming that we work in a Euclidean space
-    return options.linecost * sqrt(abs(start_i - fin_i) + abs(start_j - fin_j) + abs(start_h - fin_h));
+    int diff = abs(start_i - fin_i) + abs(start_j - fin_j) + abs(start_h - fin_h);
+    switch (diff) {
+        case 1:
+            return options.linecost;
+        case 2:
+            return M_SQRT2 * options.linecost;
+        case 3:
+            return sqrt(3) * options.linecost;
+        default:
+        case 0:
+            return 0;
+    }
 }
 
 bool ISearch::stopCriterion() {
-    if (open->empty()) {
+    if (openSize == 0) {
         std::cout << "OPEN list is empty!" << std::endl;
         return true;
     }
@@ -35,7 +47,8 @@ bool ISearch::stopCriterion() {
 SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const EnvironmentOptions &options) {
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
-    open = new ClusteredSets(map.height, breakingties);
+    open = new std::unordered_set<Node>[map.height];
+    openMinimums = std::vector<Node>(map.height, {0, 0, 0, std::numeric_limits<double>::infinity(), 0, 0, nullptr});
 
     Node curNode;
     curNode.i = map.start_i;
@@ -49,34 +62,33 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
     addOpen(curNode);
     bool pathfound = false;
     const Node *curIt;
-    std::vector<Node> successors;
-    successors.reserve(26); // Usually every node has no more than 26 successors
+    size_t closeSize = 0;
+    openSize = 1;
     while (!stopCriterion()) {
-        curNode = open->FindMin();
-        curIt = &(*(close.insert(curNode).first));
-        open->DeleteMin();
-
-        if (curNode.i == map.goal_i && curNode.j == map.goal_j && curNode.z == map.goal_h) {
+        curNode = findMin(map.height);
+        close.insert({curNode.i * map.width + curNode.j + map.height * map.width * curNode.z, curNode});
+        closeSize++;
+        deleteMin(curNode);
+        openSize--;
+        if (curNode.i == map.goal_i && curNode.j == map.goal_j) {
             pathfound = true;
             break;
         }
-
-        successors.resize(0);
-        findSuccessors(curNode, map, options, successors);
-        for (auto it = successors.begin(); it != successors.end(); ++it) {
-            it->parent = curIt;
+        std::list<Node> successors = findSuccessors(curNode, map, options);
+        auto it = successors.begin();
+        auto parent = &(close.find(curNode.i * map.width + curNode.j + map.height * map.width * curNode.z)->second);
+        while (it != successors.end()) {
+            it->parent = parent;
             it->H = computeHFromCellToCell(it->i, it->j, it->z, map.goal_i, map.goal_j, map.goal_h, options);
-            *it = resetParent(*it, *(it->parent), map, options);
+            *it = resetParent(*it, *it->parent, map, options);
             it->F = it->g + hweight * it->H;
             addOpen(*it);
+            it++;
         }
-
-        //Logger->writeToLogOpenClose(open, close, map.height); //������ ��� ��������� ������ ��� � ��� ��� ���.
     }
-    //����� ����������!
     sresult.pathfound = false;
-    sresult.nodescreated = close.size() + open->size();
-    sresult.numberofsteps = close.size();
+    sresult.nodescreated = closeSize + openSize;
+    sresult.numberofsteps = closeSize;
     //Logger->writeToLogOpenClose(open, close, map.height, true); //������ ��� ��������� ������ ��� � ��� ��� ���.
     if (pathfound) {
         sresult.pathfound = true;
@@ -94,8 +106,9 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
     return sresult;
 }
 
-void ISearch::findSuccessors(Node curNode, const Map &map, const EnvironmentOptions &options, std::vector<Node> &output) {
+std::list<Node> ISearch::findSuccessors(Node curNode, const Map &map, const EnvironmentOptions &options) {
     Node newNode;
+    std::list<Node> output;
     for (int i = -1; i <= 1; ++i) {
         for (int j = -1; j <= 1; ++j) {
             for (int h = -1; h <= 1; ++h) {
@@ -114,7 +127,7 @@ void ISearch::findSuccessors(Node curNode, const Map &map, const EnvironmentOpti
                     newNode.i = curNode.i + i;
                     newNode.j = curNode.j + j;
                     newNode.z = curNode.z + h;
-                    if (close.find(newNode) == close.end()) {
+                    if (close.find(newNode.i * map.width + newNode.j + map.height * map.width * newNode.z) == close.end()) {
                         newNode.g = curNode.g + MoveCost(curNode.i, curNode.j, curNode.z, curNode.i + i, curNode.j + j,
                                                          curNode.z + h, options);
                         output.push_back(newNode);
@@ -123,6 +136,7 @@ void ISearch::findSuccessors(Node curNode, const Map &map, const EnvironmentOpti
             }
         }
     }
+    return output;
 }
 
 void ISearch::makePrimaryPath(Node curNode) {
@@ -154,4 +168,66 @@ void ISearch::makeSecondaryPath(const Map &map, Node curNode) {
             iter--;
     }
     sresult.hppath = &hppath;
+}
+
+
+Node ISearch::findMin(int size) {
+    Node min;
+    min.F = std::numeric_limits<double>::infinity();
+    for (int i = 0; i < size; i++) {
+        if (!open[i].empty() && openMinimums[i].F <= min.F) {
+            if (openMinimums[i].F == min.F) {
+                switch (breakingties) {
+                    default:
+                    case CN_SP_BT_GMAX: {
+                        if (openMinimums[i].g >= min.g) {
+                            min = openMinimums[i];
+                        }
+                        break;
+                    }
+                    case CN_SP_BT_GMIN: {
+                        if (openMinimums[i].g <= min.g) {
+                            min = openMinimums[i];
+                        }
+                        break;
+                    }
+                }
+            }
+            else
+                min = openMinimums[i];
+        }
+    }
+    return min;
+
+}
+
+void ISearch::deleteMin(Node minNode) {
+    size_t idx = minNode.i;
+    open[idx].erase(minNode);
+    openMinimums[idx].F = std::numeric_limits<double>::infinity();
+    if (!open[idx].empty()) {
+        for (auto node : open[idx]) {
+            if (node.F <= openMinimums[idx].F) {
+                if (node.F == openMinimums[idx].F) {
+                    switch (breakingties) {
+                        default:
+                        case CN_SP_BT_GMAX: {
+                            if (node.g >= openMinimums[idx].g) {
+                                openMinimums[idx] = node;
+                            }
+                            break;
+                        }
+                        case CN_SP_BT_GMIN: {
+                            if (node.g <= openMinimums[idx].g) {
+                                openMinimums[idx] = node;
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                    openMinimums[idx] = node;
+                }
+            }
+        }
+    }
 }

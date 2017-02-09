@@ -1,6 +1,7 @@
 #include "map.h"
 
 #include <climits>
+#include <vector>
 #include <stdexcept>
 
 

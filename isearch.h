@@ -11,7 +11,7 @@
 #include <unordered_set>
 #include <iostream>
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <limits>
 #include <chrono>
 
@@ -28,10 +28,11 @@ public:
     double MoveCost(int start_i, int start_j, int start_h, int fin_i, int fin_j, int fin_h, const EnvironmentOptions &options);
 
 protected:
+    void deleteMin(Node minNode);
     virtual void addOpen(Node newNode) = 0; //каждый поиск по своему добавляет вершины в список OPEN
     virtual double computeHFromCellToCell(int start_i, int start_j, int start_h, int fin_i, int fin_j, int fin_h,
                                           const EnvironmentOptions &options) = 0; //для Дейкстры и BFS этот метод всегда возвращает ноль
-    virtual void findSuccessors(Node curNode, const Map &map, const EnvironmentOptions &options, std::vector<Node> &output);//метод, который ищет соседей текущей вершины, удовлетворяющие параметрам поиска
+    virtual std::list<Node> findSuccessors(Node curNode, const Map &map, const EnvironmentOptions &options);//метод, который ищет соседей текущей вершины, удовлетворяющие параметрам поиска
     virtual void makePrimaryPath(Node curNode);//строит путь по ссылкам на родителя
     virtual void makeSecondaryPath(const Map &map,
                                    Node curNode);
@@ -40,11 +41,12 @@ protected:
     virtual bool stopCriterion();
 
     SearchResult sresult; //результат поиска
-    // TODO correct path storage. Better to place them on the heap.
     NodeList lppath, hppath; //списки OPEN, CLOSE и путь
     Node lastnode;
-    std::unordered_set<Node> close;
-    iOpen *open;
+    std::unordered_map<uint_least32_t, Node> close;
+    std::unordered_set<Node> *open;
+    std::vector<Node> openMinimums;
+
     int openSize;
     int sizelimit; //ограничение на размер OPEN
     float hweight; //вес эвристики
