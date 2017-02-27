@@ -16,15 +16,19 @@ class Map
 
         bool getMap(const char *FileName);
         bool CellIsTraversable (int i, int j) const;
+        bool CellIsTraversable (int i, int j, int h) const;
         bool CellOnGrid (int i, int j) const;
+        bool CellOnGrid (int i, int j, int height) const;
         bool CellIsObstacle(int i, int j) const;
+        bool CellIsObstacle(int i, int j, int h) const;
         int  getValue(int i, int j) const;
 
     public:
         int**   Grid;
-        int     height, width;
-        int     start_i, start_j;
-        int     goal_i, goal_j;
+        int     height, width, altitude;
+        int     min_altitude_limit, max_altitude_limit; // The lowest and highest possible altitude for the path
+        int     start_i, start_j, start_h;
+        int     goal_i, goal_j, goal_h;
 };
 
 #endif

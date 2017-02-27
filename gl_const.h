@@ -1,5 +1,5 @@
 #ifndef GL_CONST_H
-#define	GL_CONST_H
+#define    GL_CONST_H
 
 #define CN_PI_CONSTANT 3.14159265359
 
@@ -13,10 +13,16 @@
 #define CNS_TAG_HEIGHT  "height"
 #define CNS_TAG_STX     "startx"
 #define CNS_TAG_STY     "starty"
+#define CNS_TAG_STZ     "startz"
 #define CNS_TAG_FINX    "finishx"
 #define CNS_TAG_FINY    "finishy"
+#define CNS_TAG_FINZ    "finishz"
 #define CNS_TAG_GRID    "grid"
 #define CNS_TAG_ROW "row"
+#define CNS_TAG_MAXALT         "maxaltitude"
+#define CNS_TAG_ALTLIM         "altitudelimits"
+    #define CNS_TAG_ALTLIM_ATTR_MIN "min"
+    #define CNS_TAG_ALTLIM_ATTR_MAX "max"
 
 #define CNS_TAG_ALG     "algorithm"
 #define CNS_TAG_ST  "searchtype"
@@ -47,7 +53,6 @@
 #define CNS_TAG_OPEN    "open"
 #define CNS_TAG_POINT   "node"
 #define CNS_TAG_CLOSE   "close"
-#define CNS_TAG_VIEWED   "viewed"
 
 /*
  * End of XML files tags -------------------------------------------------------
@@ -62,15 +67,19 @@
 #define CNS_TAG_ATTR_TIME           "time"
 #define CNS_TAG_ATTR_X              "x"
 #define CNS_TAG_ATTR_Y              "y"
+#define CNS_TAG_ATTR_Z              "z"
 #define CNS_TAG_ATTR_NUM            "number"
 #define CNS_TAG_ATTR_F              "F"
 #define CNS_TAG_ATTR_G              "g"
 #define CNS_TAG_ATTR_PARX           "parent_x"
 #define CNS_TAG_ATTR_PARY           "parent_y"
+#define CNS_TAG_ATTR_PARZ           "parent_z"
 #define CNS_TAG_ATTR_STX            "start.x"
 #define CNS_TAG_ATTR_STY            "start.y"
+#define CNS_TAG_ATTR_STZ            "start.z"
 #define CNS_TAG_ATTR_FINX           "finish.x"
 #define CNS_TAG_ATTR_FINY           "finish.y"
+#define CNS_TAG_ATTR_FINZ           "finish.z"
 
 
 /*
@@ -100,6 +109,7 @@
 #define CN_SP_LL_NOLOG      0
 #define CN_SP_LL_SMALLLOG   1
 #define CN_SP_LL_FULLLOG    2
+#define CN_SP_LL_PARTIALLOG    1.5
 
 #define CN_SP_AS 2 //AllowSqueeze
 
@@ -137,11 +147,9 @@
 #define CN_SP_BT_GMAX 2
 
 #define CN_SP_SL 9
-#define CN_SP_SL_NOLIMIT -1 //важно чтобы константа была меньше либо равна нулю!
+#define CN_SP_SL_NOLIMIT -1 //����� ����� ��������� ���� ������ ���� ����� ����!
 
 #define CN_SP_RP 10 //UseResetParent
-
-
 
 
 #define CN_LP_LPATH 0
@@ -162,8 +170,8 @@
 /*
  * Grid Cell -------------------------------------------------------------------
  */
-#define CN_GC_NOOBS 0 //клетка проходима
-#define CN_GC_OBS   1 //препятсвие
+#define CN_GC_NOOBS 0 //������ ���������
+//#define CN_GC_OBS   1 //����������
 /*
  * End of Grid Cell ------------------------------------------------------------
  */
@@ -176,22 +184,6 @@
 #define CN_OTHER_GVALUEOFNOWAY -1
 /*
  * End of other ----------------------------------------------------------------
- */
-
-/*
- * Move directions
- */
-#define CN_MD_STATIC 0
-#define CN_MD_UP 1
-#define CN_MD_UP_RIGHT 2
-#define CN_MD_RIGHT 3
-#define CN_MD_DOWN_RIGHT 4
-#define CN_MD_DOWN 5
-#define CN_MD_DOWN_LEFT 6
-#define CN_MD_LEFT 7
-#define CN_MD_UP_LEFT 8
-/*
- * End of move directions
  */
 #endif
 

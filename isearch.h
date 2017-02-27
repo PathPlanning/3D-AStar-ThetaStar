@@ -6,44 +6,52 @@
 #include "ilogger.h"
 #include "searchresult.h"
 #include "environmentoptions.h"
-#include "node.h"
-#include "prior_queue.h"
+#include "Queues.h"
 
-#include <unordered_map>
-#include <math.h>
+#include <unordered_set>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <limits>
+#include <chrono>
 
 class ISearch {
 public:
     ISearch();
 
-    //virtual ~ISearch(void);
+    virtual ~ISearch(void);
 
-    SearchResult startSearch(ILogger *Logger, const Map &map, const EnvironmentOptions &options);
+    SearchResult startSearch(ILogger *Logger, const Map &Map, const EnvironmentOptions &options);
+
+    Node findMin(int size);
+
+    double MoveCost(int start_i, int start_j, int start_h, int fin_i, int fin_j, int fin_h, const EnvironmentOptions &options);
 
 protected:
-    SearchResult sresult;
-    int sizelimit; //����������� �� ������ OPEN
-    double hweight; //��� ���������
-    int breakingties; //�������� ������ ��������� ������� �� OPEN, ����� F-�������� �����
+    void deleteMin(Node minNode);
+    virtual void addOpen(Node newNode) = 0; //каждый поиск по своему добавляет вершины в список OPEN
+    virtual double computeHFromCellToCell(int start_i, int start_j, int start_h, int fin_i, int fin_j, int fin_h,
+                                          const EnvironmentOptions &options) = 0; //для Дейкстры и BFS этот метод всегда возвращает ноль
+    virtual std::list<Node> findSuccessors(Node curNode, const Map &map, const EnvironmentOptions &options);//метод, который ищет соседей текущей вершины, удовлетворяющие параметрам поиска
+    virtual void makePrimaryPath(Node curNode);//строит путь по ссылкам на родителя
+    virtual void makeSecondaryPath(const Map &map,
+                                   Node curNode);
+    virtual Node resetParent(Node current, Node parent, const Map &map,
+                             const EnvironmentOptions &options) { return current; }//меняет родителя, нужен для алгоритма Theta*
+    virtual bool stopCriterion();
 
-    virtual double heuristic(int i, int j, int goal_i, int goal_j, const EnvironmentOptions &options) const;
+    SearchResult sresult; //результат поиска
+    NodeList lppath, hppath; //списки OPEN, CLOSE и путь
+    Node lastnode;
+    std::unordered_map<uint_least32_t, Node> close;
+    std::unordered_set<Node> *open;
+    std::vector<Node> openMinimums;
 
-    virtual std::list<Node> find_successors(Node *current, const Map &map, const EnvironmentOptions &options) const;
+    int openSize;
+    int sizelimit; //ограничение на размер OPEN
+    float hweight; //вес эвристики
+    int breakingties; //критерий выбора очередной вершины из OPEN, когда F-значений равны
 
-    virtual void improve_parent(Node *current, const Map &map, const EnvironmentOptions &options) const;
-
-    virtual void recovery_primary_path(Node *finish, int start_i, int start_j) = 0;
-
-    virtual void recovery_secondary_path(Node *finish, int start_i, int start_j, const EnvironmentOptions &options) = 0;
-
-    /*
-    * Returns direction between point according to gl_const
-    */
-    int direction(const vertex &from, const vertex &to) const;
-
-    int direction(int delta_i, int delta_j) const;
-
-    int direction(const Node &from, const Node &to) const;
 };
 
 #endif

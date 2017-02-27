@@ -1,44 +1,43 @@
-cmake_minimum_required(VERSION 3.2)
-project(HeuristicSearch)
+cmake_minimum_required(VERSION 3.0)
+project(Astar_heights)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O4 -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2")
 
 set(SOURCE_FILES
-        asearch.cpp
-        config.cpp
-        config.h
-        environmentoptions.cpp
-        environmentoptions.h
-        gl_const.h
-        ilogger.h
-        isearch.cpp
-        isearch.h
-        list.cpp
-        list.h
-        map.cpp
-        map.h
-        mission.cpp
-        mission.h
-        node.h
-        searchresult.h
-        tinystr.cpp
-        tinystr.h
-        tinyxml.cpp
-        tinyxml.h
-        tinyxmlerror.cpp
         tinyxmlparser.cpp
+        tinyxmlerror.cpp
+        tinyxml.cpp
+        tinystr.cpp
+        node.cpp
         xmllogger.cpp
-        xmllogger.h
-        prior_queue.cpp
-        prior_queue.h
+        isearch.cpp
+        mission.cpp
+        map.cpp
+        list.cpp
+        config.cpp
         astar.cpp
+        asearch.cpp
+        environmentoptions.cpp
+        tinyxml.h
+        tinystr.h
+        node.h
+        gl_const.h
+        xmllogger.h
+        isearch.h
+        mission.h
+        map.h
+        ilogger.h
+        list.h
+        config.h
         astar.h
-        JPS.cpp
-        JPS.h
-        Theta_star.cpp
-        Theta_star.h
-        BFS.cpp
-        BFS.h)
-
-
-add_executable(HeuristicSearch ${SOURCE_FILES})
+        searchresult.h
+        environmentoptions.h
+        Bresenham.cpp
+        Bresenham.h
+        theta.cpp
+        theta.h
+        dijkstra.cpp
+        dijkstra.h
+        bfs.cpp
+        bfs.h Queues.cpp Queues.h)
+add_executable(Astar_heights ${SOURCE_FILES})

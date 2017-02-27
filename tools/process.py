@@ -9,23 +9,15 @@ import re
 from PIL import Image, ImageDraw, ImageFont
 
 SETTINGS = {
-    'max_treads': 3,
+    'max_treads': 5,
     'EMPTY_COLOR': (255, 255, 255),
-    'PATH_COLOR': (255, 255, 0),
+    'PATH_COLOR': (0, 0, 255),
     'OBSTACLE_COLOR': (0, 0, 0),
     'START_COLOR': (0, 255, 0),
     'FINISH_COLOR': (255, 0, 0),
-    'CLOSED_COLOR': (87, 72, 468),
-    'OPENED_COLOR': (123, 63, 0),
+    'CLOSED_COLOR': (153, 88, 61),
+    'OPENED_COLOR': (204, 74, 20),
     'TEXT_COLOR': (0, 0, 0),
-    'TITLE': {
-        'MARGIN_TOP': 2,
-        'MARGIN_BOTTOM': 2,
-        'BOX_HEIGHT': 30,
-        'SEP_LINE': True,
-        'SEP_HEIGHT': 4,
-        'SEP_COLOR': (123, 0, 28)
-    }
 }
 
 
@@ -41,7 +33,16 @@ def parse_log(filename, shell=False):
         parse_result["title"] = None
     parse_result["width"] = int(map.find("width").text)
     parse_result["height"] = int(map.find("height").text)
-    parse_result["cellsize"] = int(map.find("cellsize").text)
+    try:
+        parse_result['max_level'] = int(map.find("maxaltitude").text)
+    except AttributeError:
+        parse_result["max_level"] = None
+        print("Couldn't find <maxaltitude> attribute image will be monochromatic")
+
+    try:
+        parse_result["cellsize"] = int(map.find("cellsize").text)
+    except AttributeError:
+        print("Couldn't find size of cell (attribute <cellsize>) in {}. Would be ignored.".format(filename))
     parse_result['start'] = (int(map.find("startx").text), int(map.find("starty").text))
     parse_result['finish'] = (int(map.find("finishx").text), int(map.find("finishy").text))
 
@@ -57,44 +58,44 @@ def parse_log(filename, shell=False):
 
     log = root.find('log')
 
-    level = log.find('lplevel')
-    # For all paths 'lppath' section is used
-    if (True or not any_angle_search and level is not None):
-        parse_result['section_path'] = False
-        path = set()
-        for node in level.iter('node'):
-            path.add((int(node.get('x')), int(node.get('y'))))
-        parse_result['path'] = path
-    else:
-        path = []
-        parse_result['section_path'] = True
-        level = log.find('hplevel')
-        section = level.find('section')
-        path.append((int(section.get('start.x')), int(section.get('start.y'))))
-        for section in level.iter('section'):
-            path.append((int(section.get('finish.x')), int(section.get('finish.y'))))
-        parse_result['path'] = path
-
-    level = log.find('viewed')
+    path = []
     closed = set()
     opened = set()
-    if level is None:
-        if shell:
-            print("Can not find viewed section. Points visited by algorithm won't be shown for {}.".format(filename))
-    else:
-        for node in level.iter('node'):
-            if (node.get('closed')):
-                closed.add((int(node.get('x')), int(node.get('y'))))
-            else:
-                opened.add((int(node.get('x')), int(node.get('y'))))
+    if log.find('path').text != 'Path NOT found!':
+        level = log.find('lplevel')
+        # For all paths 'lppath' section is used
+        if (True or not any_angle_search and level is not None):
+            path = set()
+            for node in level.iter('node'):
+                path.add((int(node.get('x')), int(node.get('y'))))
+        else:
+            parse_result['section_path'] = True
+            level = log.find('hplevel')
+            section = level.find('section')
+            path.append((int(section.get('start.x')), int(section.get('start.y'))))
+            for section in level.iter('section'):
+                path.append((int(section.get('finish.x')), int(section.get('finish.y'))))
 
+        level = log.find('viewed')
+        if level is None:
+            if shell:
+                print("Can not find viewed section. Points visited by algorithm won't be shown for {}.".format(filename))
+        else:
+            for node in level.iter('node'):
+                if (node.get('closed')):
+                    closed.add((int(node.get('x')), int(node.get('y'))))
+                else:
+                    opened.add((int(node.get('x')), int(node.get('y'))))
+
+    parse_result['section_path'] = False
     parse_result['closed_list'] = closed
     parse_result['opened_list'] = opened
+    parse_result['path'] = path
 
     return parse_result
 
 
-def illustrate(parsed_data, output_filename, output_format="PNG", scale=2, print_title=False, font=None):
+def illustrate(parsed_data, output_filename, output_format="PNG", scale=2):
     scale = int(scale)
     scale = 1 if scale == 0 else scale
     height = parsed_data['height']
@@ -103,54 +104,42 @@ def illustrate(parsed_data, output_filename, output_format="PNG", scale=2, print
     finish = parsed_data['finish']
 
     text_zone_height = 0
-    if print_title and parsed_data['title'] is not None:
-        text_zone_height = SETTINGS['TITLE']['MARGIN_TOP'] + SETTINGS['TITLE']['MARGIN_BOTTOM'] + SETTINGS['TITLE'][
-            'BOX_HEIGHT']
-        text_zone_height += SETTINGS['TITLE']['SEP_HEIGHT'] if SETTINGS['TITLE']['SEP_LINE'] else 0
 
     im = Image.new("RGB", (scale * width, scale * (height + text_zone_height)), color=SETTINGS['EMPTY_COLOR'])
 
     dr = ImageDraw.Draw(im)
 
-    if print_title and parsed_data['title'] is not None:
-        font_size = fractions.Fraction(scale * SETTINGS['TITLE']['BOX_HEIGHT']) * 3
-        font_size /= 4
-        print("Loading font", font_size.real, "pt")
-        try:
-            fnt = ImageFont.truetype(font, font_size.real)
-            x_pos = height + SETTINGS['TITLE']['MARGIN_TOP'] + SETTINGS['TITLE']['SEP_HEIGHT'] if SETTINGS['TITLE'][
-                'SEP_LINE'] else 0
-            print("Writing text")
-            dr.text((scale * x_pos, 0), SETTINGS['TITLE'], fill=SETTINGS['TEXT_COLOR'], font=fnt)
-            if SETTINGS['TITLE']['SEP_LINE']:
-                dr.rectangle([(scale * height, 0), (scale * (height - SETTINGS['TITLE']['MARGIN_TOP']))],
-                             fill=SETTINGS['TITLE']['SEP_COLOR'])
-        except IOError:
-            print("Couldn't load font. Title won't be printed")
-
-    if parsed_data['section_path']:
-        dr.line(list(map(lambda elem: (scale * elem[0], scale * elem[1]), parsed_data['path'])),
-                fill=SETTINGS['PATH_COLOR'], width=scale)
-
     for x in range(width):
         for y in range(height):
-            if parsed_data['map'][y][x]:
-                color = SETTINGS['OBSTACLE_COLOR']
+            if (x, y) in parsed_data['opened_list']:
+                color = SETTINGS['OPENED_COLOR']
+            elif (x, y) in parsed_data['closed_list']:
+                color = SETTINGS['CLOSED_COLOR']
             elif (x, y) == start:
                 color = SETTINGS["START_COLOR"]
             elif (x, y) == finish:
                 color = SETTINGS["FINISH_COLOR"]
             elif not parsed_data['section_path'] and (x, y) in parsed_data['path']:
                 color = SETTINGS['PATH_COLOR']
-            elif (x, y) in parsed_data['closed_list']:
-                color = SETTINGS['CLOSED_COLOR']
-            elif (x, y) in parsed_data['opened_list']:
-                color = SETTINGS['OPENED_COLOR']
+            elif parsed_data['map'][y][x]:
+                if parsed_data['max_level'] is not None:
+                    color = [0] * len(SETTINGS['OBSTACLE_COLOR'])
+                    for i in range(len(SETTINGS['OBSTACLE_COLOR'])):
+                        color[i] = SETTINGS['EMPTY_COLOR'][i] + parsed_data['map'][y][x] * (
+                        SETTINGS['OBSTACLE_COLOR'][i] - SETTINGS['EMPTY_COLOR'][i]) / parsed_data['max_level']
+                        color[i] = int(color[i])
+                    color = tuple(color)
+
+                else:
+                    color = SETTINGS['OBSTACLE_COLOR']
             else:
                 color = SETTINGS['EMPTY_COLOR']
 
             dr.rectangle([(scale * x, scale * y), (scale * x + scale, scale * y + scale)], fill=color)
 
+    if parsed_data['section_path']:
+        dr.line(list(map(lambda elem: (scale * elem[0], scale * elem[1]), parsed_data['path'])),
+                fill=SETTINGS['PATH_COLOR'], width=scale)
     del dr
     im.save(output_filename, output_format)
 
@@ -166,12 +155,17 @@ def get_log_output_filename(task_filename):
     return m.group('name') + "_log.xml"
 
 
-def make_path_and_picture(exec_filename, input_filename, log_filename, picture_filename, picture_format='PNG'):
+def make_path(exec_filename, input_filename):
+    subprocess.run([exec_filename, input_filename],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+
+
+def make_path_and_picture(exec_filename, input_filename, log_filename, picture_filename, scale=2, picture_format='PNG'):
     code = subprocess.run([exec_filename, input_filename],
                           stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT).returncode
     if code == 0:
         data = parse_log(log_filename)
-        illustrate(data, picture_filename, picture_format)
+        illustrate(data, picture_filename, picture_format, scale)
         print("{} processed successfully".format(input_filename))
     else:
         print("Error has occurred during searching path for {}.\
@@ -185,6 +179,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--exe", required=True, help="Путь к исполняемому файлу проекта")
     parser.add_argument("--test", required=True, help="Путь к папке с заданиями в формате XML или единичному файлу")
+    parser.add_argument("--scale", required=False, type=int,
+                        help="Масштаб карты, относительно заданного в файле", default=2)
+    parser.add_argument("--no_image", required=False, help="Не генерировать изображения к результату", type=bool)
     args = parser.parse_args()
     exec_path = path.abspath(args.exe)
     if not path.isfile(exec_path):
@@ -202,13 +199,16 @@ if __name__ == "__main__":
 
     tasks = {}
     for filename in files:
-        m = re.match(r'(?P<number>\d+)\.xml', filename)
+        m = re.match(r'(?P<name>.+)(?<!_log)\.xml', filename)
         if m:
             tasks[path.join(dir_path, filename)] = (get_log_output_filename(path.join(dir_path, filename)),
-                                                    path.join(dir_path, m.group('number') + '.png'))
+                                                    path.join(dir_path, m.group('name') + '.plain.png'))
 
     with multiprocessing.Pool(min(SETTINGS['max_treads'], cpu_count())) as pool:
         for inp_path, val in tasks.items():
-            pool.apply_async(make_path_and_picture, [exec_path, inp_path, val[0], val[1]])
+            if args.no_image:
+                pool.apply_async(make_path, [exec_path, inp_path])
+            else:
+                pool.apply_async(make_path_and_picture, [exec_path, inp_path, val[0], val[1], args.scale])
         pool.close()
         pool.join()

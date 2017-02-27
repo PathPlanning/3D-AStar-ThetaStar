@@ -4,11 +4,11 @@
 #
 #-------------------------------------------------
 
-TARGET = HeuristicSearch
+TARGET = ASearch
 CONFIG   += console
 CONFIG   -= app_bundle
 TEMPLATE = app
-QMAKE_CXXFLAGS += -std=c++11 -O4
+QMAKE_CXXFLAGS += -std=c++11 -O3
 
 win32 {
 QMAKE_LFLAGS += -static -static-libgcc -static-libstdc++
@@ -19,19 +19,20 @@ SOURCES += \
     tinyxmlerror.cpp \
     tinyxml.cpp \
     tinystr.cpp \
+    node.cpp \
     xmllogger.cpp \
     isearch.cpp \
     mission.cpp \
     map.cpp \
     list.cpp \
     config.cpp \
-    JPS.cpp \
+    astar.cpp \
     asearch.cpp \
     environmentoptions.cpp \
-    prior_queue.cpp \
-    astar.cpp \
-    BFS.cpp \
-    Theta_star.cpp
+    Bresenham.cpp \
+    theta.cpp \
+    dijkstra.cpp \
+    bfs.cpp
 
 HEADERS += \
     tinyxml.h \
@@ -45,10 +46,10 @@ HEADERS += \
     ilogger.h \
     list.h \
     config.h \
-    JPS.h \
+    astar.h \
     searchresult.h \
     environmentoptions.h \
-    prior_queue.h \
-    astar.h \
-    BFS.h \
-    Theta_star.h
+    Bresenham.h \
+    theta.h \
+    dijkstra.h \
+    bfs.h

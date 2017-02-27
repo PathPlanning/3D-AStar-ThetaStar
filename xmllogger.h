@@ -6,9 +6,7 @@
 #include "ilogger.h"
 #include "map.h"
 #include "list.h"
-
 #include <ctime>
-#include <set>
 
 class XmlLogger : public ILogger
 {
@@ -19,9 +17,8 @@ class XmlLogger : public ILogger
 
         bool getLog(const char* FileName, const std::string* LogParams);
         void saveLog();
-        void writeToLogMap(const Map& map, const NodeList& path);
-        void writeToLogOpenClose(const NodeList *open, const std::unordered_map<int, Node> &close, int size);
-        void writeToLogViewed(const std::map<Node, bool> &viewed);
+        void writeToLogMap(const Map& Map, const NodeList& path);
+        void writeToLogOpenClose(const NodeList *open, const std::unordered_set<Node> &close, int size, bool summary);
         void writeToLogPath(const NodeList& path);
         void writeToLogHPpath(const NodeList& hppath);
         void writeToLogNotFound();
