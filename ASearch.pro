@@ -15,10 +15,7 @@ QMAKE_LFLAGS += -static -static-libgcc -static-libstdc++
 }
 
 SOURCES += \
-    tinyxmlparser.cpp \
-    tinyxmlerror.cpp \
-    tinyxml.cpp \
-    tinystr.cpp \
+    tinyxml2.cpp \
     node.cpp \
     xmllogger.cpp \
     isearch.cpp \
@@ -35,8 +32,7 @@ SOURCES += \
     bfs.cpp
 
 HEADERS += \
-    tinyxml.h \
-    tinystr.h \
+    tinyxml2.h \
     node.h \
     gl_const.h \
     xmllogger.h \
