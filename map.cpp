@@ -1,4 +1,5 @@
 #include "map.h"
+#include "tinyxml2.h"
 
 #include <climits>
 #include <vector>
@@ -24,6 +25,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 Map::Map() {
     height = -1;
     width = -1;
+    altitude = 0;
     start_i = -1;
     start_j = -1;
     start_h = -1;
@@ -68,8 +70,7 @@ bool Map::CellOnGrid(int i, int j, int height) const {
 }
 
 bool Map::getMap(const char *FileName) {
-    TiXmlElement *root = 0, *map = 0, *element = 0;
-    TiXmlNode *mapnode = 0;
+    tinyxml2::XMLElement *root = 0, *map = 0, *element = 0, *mapnode;
 
     std::string value; //èìÿ òåãà
     std::stringstream stream; //ñîäåðäèìîå (òåêñò) òåãà
@@ -78,10 +79,10 @@ bool Map::getMap(const char *FileName) {
     bool hasSTZ = false, hasFINX = false, hasFINY = false, hasFINZ = false, hasSTH = false, hasFINH = false;
     bool hasMAXALT = false, hasALTLIM = false;
 
-    TiXmlDocument doc(FileName);
+    tinyxml2::XMLDocument doc;
 
     // Load XML File
-    if (!doc.LoadFile()) {
+    if (doc.LoadFile(FileName) != tinyxml2::XMLError::XML_SUCCESS) {
         std::cout << "Error opening XML file!" << std::endl;
         return false;
     }
@@ -108,10 +109,7 @@ bool Map::getMap(const char *FileName) {
     //ò.å. ÂÑÅÃÄÀ çàïîìèíàåòñÿ è èñïîëüçóåòñÿ ÒÎËÜÊÎ ïåðâîå (êîððåêòíî îïðåäåëåííîå) çíà÷åíèå ñòàðòà (õ, ó), ôèíèøà (õ, ó), âûñîòû, øèðèíû
 
 
-    for (mapnode = map->FirstChild(); mapnode; mapnode = map->IterateChildren(mapnode)) {
-        if (mapnode->Type() == TiXmlNode::TINYXML_COMMENT) { // Skipping comments
-            continue;
-        }
+    for (mapnode = map->FirstChildElement(); mapnode; mapnode = mapnode->NextSiblingElement()) {
         element = mapnode->ToElement(); //î÷åðåäíîé ýëåìåíò (òåã)
         value = mapnode->Value(); // èìÿ òåãà
         std::transform(value.begin(), value.end(), value.begin(), ::tolower); //"õîðîøåå èìÿ òåãà"
@@ -206,7 +204,7 @@ bool Map::getMap(const char *FileName) {
                 std::cout << "Only first value of '" << CNS_TAG_ALTLIM << "will be used." << std::endl;
             } else {
                 hasALTLIM = true;
-                if (!((element->Attribute(CNS_TAG_ALTLIM_ATTR_MIN, &min_altitude_limit)) && (min_altitude_limit >= 0))) {
+                if (!((element->QueryAttribute(CNS_TAG_ALTLIM_ATTR_MIN, &min_altitude_limit)) && (min_altitude_limit >= 0))) {
                     std::cout << "Warning! Invalid value of '" << CNS_TAG_ALTLIM_ATTR_MIN << "' attribute of '"
                               << CNS_TAG_ALTLIM << "' tag encountered (or could not convert to integer)." << std::endl;
                     std::cout << "Value of '" << CNS_TAG_ALTLIM_ATTR_MIN << "' tag should be an integer AND >=0"
@@ -215,7 +213,7 @@ bool Map::getMap(const char *FileName) {
                               << "' tag will be encountered later..." << std::endl;
                     hasALTLIM = false;
                 }
-                if (!((element->Attribute(CNS_TAG_ALTLIM_ATTR_MAX, &max_altitude_limit)) &&
+                if (!((element->QueryAttribute(CNS_TAG_ALTLIM_ATTR_MAX, &max_altitude_limit)) &&
                       (max_altitude_limit >= min_altitude_limit))) {
                     std::cout << "Warning! Invalid value of '" << CNS_TAG_ALTLIM_ATTR_MAX << "' attribute of '"
                               << CNS_TAG_ALTLIM << "' tag encountered (or could not convert to integer)." << std::endl;

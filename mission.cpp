@@ -1,5 +1,4 @@
 #include "mission.h"
-//#include "jp_search.h"
 #include "astar.h"
 #include "bfs.h"
 #include "dijkstra.h"
@@ -21,8 +20,8 @@ Mission::Mission(const char *FileName) {
 }
 
 Mission::~Mission() {
-    if (logger) delete logger;
-    if (search) delete search;
+    if (logger != NULL) delete logger;
+    if (search != NULL) delete search;
 }
 
 bool Mission::getMap() {
@@ -34,6 +33,7 @@ bool Mission::getConfig() {
 }
 
 bool Mission::createLog() {
+    if (logger != NULL) delete logger;
     logger = new XmlLogger();
     logger->loglevel = config.SearchParams[CN_SP_LL];
     return logger->getLog(fileName, config.LogParams);
@@ -49,6 +49,7 @@ void Mission::createEnvironmentOptions() {
 }
 
 void Mission::createSearch() {
+    if (search != NULL) delete search;
     if (config.SearchParams[CN_SP_ST] == CN_SP_ST_ASTAR) {
         search = new Astar(config.SearchParams[CN_SP_HW], config.SearchParams[CN_SP_BT], config.SearchParams[CN_SP_SL],
                            map.height);

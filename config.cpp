@@ -1,6 +1,6 @@
 #include "config.h"
 #include "gl_const.h"
-#include "tinyxml.h"
+#include "tinyxml2.h"
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -20,10 +20,10 @@ bool Config::getConfig(const char *FileName) {
     double loglevel = -1;
     std::string value;
     std::stringstream stream;
-    TiXmlElement *root = 0, *algorithm = 0, *element = 0, *options = 0;
+    tinyxml2::XMLElement *root = 0, *algorithm = 0, *element = 0, *options = 0;
 
-    TiXmlDocument doc(FileName);
-    if (!doc.LoadFile()) {
+    tinyxml2::XMLDocument doc;
+    if (doc.LoadFile(FileName) != tinyxml2::XMLError::XML_SUCCESS) {
         std::cout << "Error opening XML file!" << std::endl;
         return false;
     }

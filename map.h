@@ -1,7 +1,6 @@
 #ifndef MAP_H
 #define	MAP_H
-#include "tinystr.h"
-#include "tinyxml.h"
+#include "tinyxml2.h"
 #include <iostream>
 #include "gl_const.h"
 #include <sstream>

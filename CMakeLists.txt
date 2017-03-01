@@ -4,10 +4,6 @@ project(Astar_heights)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2")
 
 set(SOURCE_FILES
-        tinyxmlparser.cpp
-        tinyxmlerror.cpp
-        tinyxml.cpp
-        tinystr.cpp
         node.cpp
         xmllogger.cpp
         isearch.cpp
@@ -18,8 +14,6 @@ set(SOURCE_FILES
         astar.cpp
         asearch.cpp
         environmentoptions.cpp
-        tinyxml.h
-        tinystr.h
         node.h
         gl_const.h
         xmllogger.h
@@ -39,5 +33,9 @@ set(SOURCE_FILES
         dijkstra.cpp
         dijkstra.h
         bfs.cpp
-        bfs.h Queues.cpp Queues.h)
+        bfs.h
+        Queues.cpp
+        Queues.h
+        tinyxml2.h
+        tinyxml2.cpp)
 add_executable(Astar_heights ${SOURCE_FILES})
