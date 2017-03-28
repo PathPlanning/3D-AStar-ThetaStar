@@ -8,14 +8,16 @@ EnvironmentOptions::EnvironmentOptions()
     linecost = CN_MC_LINE;
     diagonalcost = CN_MC_DIAG;
     allowdiagonal = CN_SP_AD_TRUE;
+    allowcutcorners = CN_SP_AC_FALSE;
 }
 
-EnvironmentOptions::EnvironmentOptions(int MT, bool AS, double LC, double DC, int AD)
+EnvironmentOptions::EnvironmentOptions(int MT, bool AS, double LC, double DC, int AD, bool AC)
 {
     metrictype = MT;
     allowsqueeze = AS;
     linecost = LC;
     diagonalcost = DC;
     allowdiagonal = AD;
+    allowcutcorners = AC;
 }
 

@@ -9,7 +9,6 @@ Astar::Astar() : ISearch() { }
 Astar::Astar(double w, int BT, int SL, int i) {
     hweight = w;
     breakingties = BT;
-    sizelimit = SL;
 }
 
 Astar::~Astar() {
@@ -49,42 +48,4 @@ double Astar::computeHFromCellToCell(int start_i, int start_j, int start_h, int 
         }
     }
     return 0;
-}
-
-void Astar::addOpen(Node newNode) {
-    bool inserted = false;
-    size_t idx = newNode.i;
-    if (open[idx].find(newNode) != open[idx].end()) {
-        if (newNode.F < open[idx].find(newNode)->F) {
-            open[idx].erase(newNode);
-            open[idx].insert(newNode);
-            inserted = true;
-        }
-    } else {
-        open[idx].insert(newNode);
-        inserted = true;
-        ++openSize;
-    }
-
-    if (inserted && newNode.F <= openMinimums[newNode.i].F) {
-        if (newNode.F == openMinimums[idx].F) {
-            switch (breakingties) {
-                default:
-                case CN_SP_BT_GMAX: {
-                    if (newNode.g >= openMinimums[idx].g) {
-                        openMinimums[idx] = newNode;
-                    }
-                    break;
-                }
-                case CN_SP_BT_GMIN: {
-                    if (newNode.g <= openMinimums[idx].g) {
-                        openMinimums[idx] = newNode;
-                    }
-                    break;
-                }
-            }
-        } else {
-            openMinimums[idx] = newNode;
-        }
-    }
 }

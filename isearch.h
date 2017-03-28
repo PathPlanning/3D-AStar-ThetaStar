@@ -9,11 +9,7 @@
 #include "Queues.h"
 
 #include <unordered_set>
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <limits>
-#include <chrono>
+#include <unordered_map>
 
 class ISearch {
 public:
@@ -23,34 +19,32 @@ public:
 
     SearchResult startSearch(ILogger *Logger, const Map &Map, const EnvironmentOptions &options);
 
-    Node findMin(int size);
-
-    double MoveCost(int start_i, int start_j, int start_h, int fin_i, int fin_j, int fin_h, const EnvironmentOptions &options);
-
 protected:
+    Node findMin(int size);
+    double MoveCost(int start_i, int start_j, int start_h, int fin_i, int fin_j, int fin_h, const EnvironmentOptions &options);
     void deleteMin(Node minNode);
-    virtual void addOpen(Node newNode) = 0; //каждый поиск по своему добавляет вершины в список OPEN
+    virtual void addOpen(Node newNode);
     virtual double computeHFromCellToCell(int start_i, int start_j, int start_h, int fin_i, int fin_j, int fin_h,
-                                          const EnvironmentOptions &options) = 0; //для Дейкстры и BFS этот метод всегда возвращает ноль
-    virtual std::list<Node> findSuccessors(Node curNode, const Map &map, const EnvironmentOptions &options);//метод, который ищет соседей текущей вершины, удовлетворяющие параметрам поиска
-    virtual void makePrimaryPath(Node curNode);//строит путь по ссылкам на родителя
+                                          const EnvironmentOptions &options) = 0;
+    // Method which searches the expanded node successor, which satisfies search conditions
+    virtual std::list<Node> findSuccessors(Node curNode, const Map &map, const EnvironmentOptions &options);
+    virtual void makePrimaryPath(Node curNode);
     virtual void makeSecondaryPath(const Map &map,
                                    Node curNode);
+    // Tries to changed node's parent on better one
     virtual Node resetParent(Node current, Node parent, const Map &map,
-                             const EnvironmentOptions &options) { return current; }//меняет родителя, нужен для алгоритма Theta*
+                             const EnvironmentOptions &options) { return current; }
     virtual bool stopCriterion();
 
-    SearchResult sresult; //результат поиска
-    NodeList lppath, hppath; //списки OPEN, CLOSE и путь
-    Node lastnode;
+    SearchResult sresult;
+    NodeList lppath, hppath; // Found point by point and section paths
     std::unordered_map<uint_least32_t, Node> close;
     std::unordered_set<Node> *open;
     std::vector<Node> openMinimums;
 
     int openSize;
-    int sizelimit; //ограничение на размер OPEN
-    float hweight; //вес эвристики
-    int breakingties; //критерий выбора очередной вершины из OPEN, когда F-значений равны
+    float hweight; // Heuristic weight coefficient
+    int breakingties; // ID of criterion which used for choosing between node with the same f-value
 
 };
 

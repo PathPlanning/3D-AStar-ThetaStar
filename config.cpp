@@ -283,6 +283,28 @@ bool Config::getConfig(const char *FileName) {
         }
     }
 
+    element = algorithm->FirstChildElement(CNS_TAG_AC);
+    if (!element) {
+        std::cout << "Warning! No '" << CNS_TAG_AC << "' element found in XML file." << std::endl;
+        std::cout << "Value of '" << CNS_TAG_AC << "' was defined to default - " << CN_SP_AC_TRUE << std::endl;
+        SearchParams[CN_SP_AC] = CN_SP_AC_TRUE;
+    } else {
+        std::string check;
+        stream << CN_SP_AC_FALSE;
+        stream >> check;
+        stream.clear();
+        stream.str("");
+        stream << element->GetText();
+        stream >> SearchParams[CN_SP_AC];
+        stream.str("");
+        stream.clear();
+        if (SearchParams[CN_SP_AC] != CN_SP_AC_TRUE && check != element->GetText()) {
+            std::cout << "Warning! Value of '" << CNS_TAG_AC << "' is not correctly specified." << std::endl;
+            std::cout << "Value of '" << CNS_TAG_AC << "' was defined to default - " << CN_SP_AC_TRUE << std::endl;
+            SearchParams[CN_SP_AC] = CN_SP_AC_TRUE;
+        }
+    }
+
     options = root->FirstChildElement(CNS_TAG_OPT);
     LogParams = new std::string[2];
     LogParams[CN_LP_LPATH] = "";

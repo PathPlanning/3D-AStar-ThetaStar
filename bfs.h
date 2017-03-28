@@ -4,6 +4,7 @@
 #include "isearch.h"
 #include "astar.h"
 
+// TODO write breadth-first search instead of best-first search algorithm here
 class BFS : public Astar
 {
 protected:

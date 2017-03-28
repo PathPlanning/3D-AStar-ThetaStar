@@ -1,13 +1,16 @@
 #include "gl_const.h"
 #include "isearch.h"
 
+#include <iostream>
+#include <vector>
 #include <cmath>
+#include <limits>
+#include <chrono>
 
 ISearch::ISearch() {
     //��������� ������ ���� ��������� �������������� ������������, � ����������� �� ����, ����� ������������ "������������" ���������
     hweight = 1;
     breakingties = CN_SP_BT_GMAX;
-    sizelimit = CN_SP_SL_NOLIMIT;
     open = NULL;
     openSize = 0;
     //sresult ���������� �� ���� - � ���� ���� ����������� �� ���������...
@@ -124,10 +127,16 @@ std::list<Node> ISearch::findSuccessors(Node curNode, const Map &map, const Envi
                             continue;
                         }
                     }
+                    if (options.allowcutcorners == CN_SP_AC_FALSE &&
+                        (map.CellIsObstacle(curNode.i + i, curNode.j + j, curNode.z) ||
+                         map.CellIsObstacle(curNode.i + i, curNode.j, curNode.z + h) || map.CellIsObstacle(curNode.i, curNode.j + j, curNode.z + h))) {
+                        continue;
+                    }
                     newNode.i = curNode.i + i;
                     newNode.j = curNode.j + j;
                     newNode.z = curNode.z + h;
-                    if (close.find(newNode.i * map.width + newNode.j + map.height * map.width * newNode.z) == close.end()) {
+                    if (close.find(newNode.i * map.width + newNode.j + map.height * map.width * newNode.z) ==
+                        close.end()) {
                         newNode.g = curNode.g + MoveCost(curNode.i, curNode.j, curNode.z, curNode.i + i, curNode.j + j,
                                                          curNode.z + h, options);
                         output.push_back(newNode);
@@ -192,8 +201,7 @@ Node ISearch::findMin(int size) {
                         break;
                     }
                 }
-            }
-            else
+            } else
                 min = openMinimums[i];
         }
     }
@@ -228,6 +236,44 @@ void ISearch::deleteMin(Node minNode) {
                     openMinimums[idx] = node;
                 }
             }
+        }
+    }
+}
+
+void ISearch::addOpen(Node newNode) {
+    bool inserted = false;
+    size_t idx = newNode.i;
+    if (open[idx].find(newNode) != open[idx].end()) {
+        if (newNode.F < open[idx].find(newNode)->F) {
+            open[idx].erase(newNode);
+            open[idx].insert(newNode);
+            inserted = true;
+        }
+    } else {
+        open[idx].insert(newNode);
+        inserted = true;
+        ++openSize;
+    }
+
+    if (inserted && newNode.F <= openMinimums[newNode.i].F) {
+        if (newNode.F == openMinimums[idx].F) {
+            switch (breakingties) {
+                default:
+                case CN_SP_BT_GMAX: {
+                    if (newNode.g >= openMinimums[idx].g) {
+                        openMinimums[idx] = newNode;
+                    }
+                    break;
+                }
+                case CN_SP_BT_GMIN: {
+                    if (newNode.g <= openMinimums[idx].g) {
+                        openMinimums[idx] = newNode;
+                    }
+                    break;
+                }
+            }
+        } else {
+            openMinimums[idx] = newNode;
         }
     }
 }

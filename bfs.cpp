@@ -10,5 +10,5 @@ BFS::~BFS()
 
 void BFS::addOpen(Node newNode) {
     newNode.F = newNode.H;
-    Astar::addOpen(newNode);
+    ISearch::addOpen(newNode);
 }

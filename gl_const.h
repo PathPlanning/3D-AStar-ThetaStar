@@ -1,8 +1,6 @@
 #ifndef GL_CONST_H
 #define    GL_CONST_H
 
-#define CN_PI_CONSTANT 3.14159265359
-
 /*
  * XML file tags ---------------------------------------------------------------
  */
@@ -34,6 +32,7 @@
 #define CNS_TAG_LC  "linecost"
 #define CNS_TAG_DC  "diagonalcost"
 #define CNS_TAG_AD  "allowdiagonal"
+#define CNS_TAG_AC  "cutcorners"
 #define CNS_TAG_RP  "useresetparent"
 
 #define CNS_TAG_OPT         "options"
@@ -116,11 +115,16 @@
 #define CN_SP_AS_TRUE 1
 #define CN_SP_AS_FALSE 0
 
+#define CN_SP_AC_TRUE 1
+#define CN_SP_AC_FALSE 0
+
 #define CN_SP_LC 3 //LineCost
 
 #define CN_SP_DC 4 //DiagonalCost
 
 #define CN_SP_AD 5 //AllowDiagonal
+
+#define CN_SP_AC 6 //AllowCutcorners
 #define CN_SP_AD_TRUE 1
 #define CN_SP_AD_FALSE 0
 
