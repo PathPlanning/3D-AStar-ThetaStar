@@ -8,7 +8,7 @@
 class BFS : public Astar
 {
 protected:
-    virtual void addOpen(Node newNode);
+    virtual void addOpen(Node newNode, uint_least32_t key);
     public:
         BFS();
         ~BFS(void);

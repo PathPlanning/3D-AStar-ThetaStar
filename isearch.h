@@ -6,7 +6,7 @@
 #include "ilogger.h"
 #include "searchresult.h"
 #include "environmentoptions.h"
-#include "Queues.h"
+#include "node.h"
 
 #include <unordered_set>
 #include <unordered_map>
@@ -21,9 +21,9 @@ public:
 
 protected:
     Node findMin(int size);
+    void deleteMin(Node minNode, uint_least32_t key);
+    virtual void addOpen(Node newNode, uint_least32_t key);
     double MoveCost(int start_i, int start_j, int start_h, int fin_i, int fin_j, int fin_h, const EnvironmentOptions &options);
-    void deleteMin(Node minNode);
-    virtual void addOpen(Node newNode);
     virtual double computeHFromCellToCell(int start_i, int start_j, int start_h, int fin_i, int fin_j, int fin_h,
                                           const EnvironmentOptions &options) = 0;
     // Method which searches the expanded node successor, which satisfies search conditions
@@ -39,8 +39,8 @@ protected:
     SearchResult sresult;
     NodeList lppath, hppath; // Found point by point and section paths
     std::unordered_map<uint_least32_t, Node> close;
-    std::unordered_set<Node> *open;
-    std::vector<Node> openMinimums;
+    std::unordered_map<uint_least32_t, Node> *open;
+    std::vector<int_least64_t> openMinimums;
 
     int openSize;
     float hweight; // Heuristic weight coefficient

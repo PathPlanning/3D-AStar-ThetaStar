@@ -10,6 +10,8 @@ struct Node
 
     bool operator==(const Node& other) const;
     bool operator!=(const Node& other) const;
+
+    uint_least32_t get_id(int map_height, int map_width);
 };
 
 namespace std {

@@ -50,8 +50,8 @@ bool ISearch::stopCriterion() {
 SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const EnvironmentOptions &options) {
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
-    open = new std::unordered_set<Node>[map.height];
-    openMinimums = std::vector<Node>(map.height, {0, 0, 0, std::numeric_limits<double>::infinity(), 0, 0, nullptr});
+    open = new std::unordered_map<uint_least32_t, Node>[map.height];
+    openMinimums = std::vector<int_least64_t>(map.height, -1);
 
     Node curNode;
     curNode.i = map.start_i;
@@ -62,7 +62,7 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
     curNode.F = hweight * curNode.H;
     curNode.parent = nullptr;
 
-    addOpen(curNode);
+    addOpen(curNode, curNode.get_id(map.height, map.width));
     bool pathfound = false;
     const Node *curIt;
     size_t closeSize = 0;
@@ -70,9 +70,9 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
     while (!stopCriterion()) {
         curNode = findMin(map.height);
         close.insert({curNode.i * map.width + curNode.j + map.height * map.width * curNode.z, curNode});
-        closeSize++;
-        deleteMin(curNode);
-        openSize--;
+        ++closeSize;
+        deleteMin(curNode, curNode.get_id(map.height, map.width));
+        --openSize;
         if (curNode.i == map.goal_i && curNode.j == map.goal_j) {
             pathfound = true;
             break;
@@ -85,7 +85,7 @@ SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const Environ
             it->H = computeHFromCellToCell(it->i, it->j, it->z, map.goal_i, map.goal_j, map.goal_h, options);
             *it = resetParent(*it, *it->parent, map, options);
             it->F = it->g + hweight * it->H;
-            addOpen(*it);
+            addOpen(*it, it->get_id(map.height, map.width));
             it++;
         }
     }
@@ -179,101 +179,111 @@ void ISearch::makeSecondaryPath(const Map &map, Node curNode) {
     sresult.hppath = &hppath;
 }
 
-
 Node ISearch::findMin(int size) {
-    Node min;
+    Node min, cur_node;
     min.F = std::numeric_limits<double>::infinity();
     for (int i = 0; i < size; i++) {
-        if (!open[i].empty() && openMinimums[i].F <= min.F) {
-            if (openMinimums[i].F == min.F) {
-                switch (breakingties) {
-                    default:
-                    case CN_SP_BT_GMAX: {
-                        if (openMinimums[i].g >= min.g) {
-                            min = openMinimums[i];
-                        }
-                        break;
-                    }
-                    case CN_SP_BT_GMIN: {
-                        if (openMinimums[i].g <= min.g) {
-                            min = openMinimums[i];
-                        }
-                        break;
-                    }
-                }
-            } else
-                min = openMinimums[i];
-        }
-    }
-    return min;
-
-}
-
-void ISearch::deleteMin(Node minNode) {
-    size_t idx = minNode.i;
-    open[idx].erase(minNode);
-    openMinimums[idx].F = std::numeric_limits<double>::infinity();
-    if (!open[idx].empty()) {
-        for (auto node : open[idx]) {
-            if (node.F <= openMinimums[idx].F) {
-                if (node.F == openMinimums[idx].F) {
+        if (!open[i].empty()) {
+            cur_node = open[i][openMinimums[i]];
+            if (cur_node.F <= min.F) {
+                if (cur_node.F == min.F) {
                     switch (breakingties) {
                         default:
                         case CN_SP_BT_GMAX: {
-                            if (node.g >= openMinimums[idx].g) {
-                                openMinimums[idx] = node;
+                            if (cur_node.g >= min.g) {
+                                min = cur_node;
                             }
                             break;
                         }
                         case CN_SP_BT_GMIN: {
-                            if (node.g <= openMinimums[idx].g) {
-                                openMinimums[idx] = node;
+                            if (cur_node.g <= min.g) {
+                                min = cur_node;
                             }
                             break;
                         }
                     }
                 } else {
-                    openMinimums[idx] = node;
+                    min = cur_node;
+                }
+            }
+        }
+    }
+    return min;
+}
+
+void ISearch::deleteMin(Node minNode, uint_least32_t key) {
+    size_t idx = minNode.i;
+    open[idx].erase(key);
+    Node min_node;
+    min_node.F = std::numeric_limits<float>::infinity();
+    if (!open[idx].empty()) {
+        for (auto it = open[idx].begin(); it != open[idx].end(); ++it) {
+            if (it->second.F <= min_node.F) {
+                if (it->second.F == min_node.F) {
+                    switch (breakingties) {
+                        default:
+                        case CN_SP_BT_GMAX: {
+                            if (it->second.g >= min_node.g) {
+                                openMinimums[idx] = it->first;
+                                min_node = it->second;
+                            }
+                            break;
+                        }
+                        case CN_SP_BT_GMIN: {
+                            if (it->second.g <= min_node.g) {
+                                openMinimums[idx] = it->first;
+                                min_node = it->second;
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                    openMinimums[idx] = it->first;
+                    min_node = it->second;
                 }
             }
         }
     }
 }
 
-void ISearch::addOpen(Node newNode) {
+void ISearch::addOpen(Node newNode, uint_least32_t key) {
     bool inserted = false;
     size_t idx = newNode.i;
-    if (open[idx].find(newNode) != open[idx].end()) {
-        if (newNode.F < open[idx].find(newNode)->F) {
-            open[idx].erase(newNode);
-            open[idx].insert(newNode);
+    if (open[idx].find(key) != open[idx].end()) {
+        if (newNode.F < open[idx][key].F) {
+            open[idx][key] = newNode;
             inserted = true;
         }
     } else {
-        open[idx].insert(newNode);
+        open[idx][key] = newNode;
         inserted = true;
         ++openSize;
     }
 
-    if (inserted && newNode.F <= openMinimums[newNode.i].F) {
-        if (newNode.F == openMinimums[idx].F) {
-            switch (breakingties) {
-                default:
-                case CN_SP_BT_GMAX: {
-                    if (newNode.g >= openMinimums[idx].g) {
-                        openMinimums[idx] = newNode;
+    if (open[idx].size() == 1) {
+        openMinimums[idx] = key;
+    } else {
+        Node min_node = open[idx][openMinimums[idx]];
+        if (inserted && newNode.F <= min_node.F) {
+            if (newNode.F == min_node.F) {
+                switch (breakingties) {
+                    default:
+                    case CN_SP_BT_GMAX: {
+                        if (newNode.g >= min_node.g) {
+                            openMinimums[idx] = key;
+                        }
+                        break;
                     }
-                    break;
-                }
-                case CN_SP_BT_GMIN: {
-                    if (newNode.g <= openMinimums[idx].g) {
-                        openMinimums[idx] = newNode;
+                    case CN_SP_BT_GMIN: {
+                        if (newNode.g <= min_node.g) {
+                            openMinimums[idx] = key;
+                        }
+                        break;
                     }
-                    break;
                 }
+            } else {
+                openMinimums[idx] = key;
             }
-        } else {
-            openMinimums[idx] = newNode;
         }
     }
 }
