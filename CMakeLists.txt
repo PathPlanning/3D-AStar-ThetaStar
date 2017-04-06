@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.0)
-project(Astar_heights)
+cmake_minimum_required(VERSION 2.8)
+project(3D-AStar-ThetaStar)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2")
 

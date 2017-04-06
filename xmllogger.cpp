@@ -91,7 +91,7 @@ void XmlLogger::saveLog() {
 }
 
 void XmlLogger::writeToLogMap(const Map &map, const NodeList &path) {
-    if (loglevel == CN_SP_LL_NOLOG) return;
+    if (loglevel == CN_SP_LL_NOLOG || loglevel == CN_SP_LL_TINY) return;
 
     int iterate = 0;
     std::stringstream stream;
@@ -126,7 +126,7 @@ void XmlLogger::writeToLogMap(const Map &map, const NodeList &path) {
 void XmlLogger::writeToLogOpenClose(const NodeList *open, const std::unordered_set<Node> &close, int size,
                                     bool summary = false) {
 
-    if (loglevel == CN_SP_LL_NOLOG || loglevel == CN_SP_LL_SMALLLOG ||
+    if (loglevel == CN_SP_LL_NOLOG || loglevel == CN_SP_LL_TINY || loglevel == CN_SP_LL_SMALLLOG ||
         (loglevel == CN_SP_LL_PARTIALLOG && !summary))
         return;
     int iterate = 1;
@@ -211,7 +211,7 @@ void XmlLogger::writeToLogOpenClose(const NodeList *open, const std::unordered_s
 }
 
 void XmlLogger::writeToLogPath(const NodeList &path) {
-    if (loglevel == CN_SP_LL_NOLOG || path.List.size() == 0) return;
+    if (loglevel == CN_SP_LL_NOLOG || loglevel == CN_SP_LL_TINY || path.List.size() == 0) return;
     int iterate = 0;
     XMLElement *lplevel = doc.FirstChildElement(CNS_TAG_ROOT);
     lplevel = lplevel->FirstChildElement(CNS_TAG_LOG)->FirstChildElement(CNS_TAG_LPLEVEL);
@@ -227,7 +227,7 @@ void XmlLogger::writeToLogPath(const NodeList &path) {
 }
 
 void XmlLogger::writeToLogHPpath(const NodeList &hppath) {
-    if (loglevel == CN_SP_LL_NOLOG || hppath.List.size() == 0) return;
+    if (loglevel < CN_SP_LL_SMALLLOG || loglevel == CN_SP_LL_TINY || hppath.List.size() == 0) return;
     int partnumber = 0;
     XMLElement *hplevel = doc.FirstChildElement(CNS_TAG_ROOT);
     hplevel = hplevel->FirstChildElement(CNS_TAG_LOG)->FirstChildElement(CNS_TAG_HPLEVEL);
@@ -252,7 +252,7 @@ void XmlLogger::writeToLogHPpath(const NodeList &hppath) {
 }
 
 void XmlLogger::writeToLogSummary(unsigned int numberofsteps, unsigned int nodescreated, float length, double time) {
-    if (loglevel == 0) return;
+    if (loglevel == CN_SP_LL_NOLOG) return;
 
     std::stringstream str;
     str << time;

@@ -1,0 +1,165 @@
+<?xml version="1.0" ?>
+<root>
+    <desc>This file contains a task (map + start-goal location) for a pathfinder as well as some additional data</desc>
+    <map>
+        <title>Sample 3D Map</title>
+        <URL />
+        <cellsize>2</cellsize>
+        <width>30</width>
+        <height>30</height>
+        <maxaltitude>20</maxaltitude>
+        <altitudelimits min="0" max="20"/>
+        <startx>0</startx>
+        <starty>0</starty>
+        <startz>0</startz>
+        <finishx>6</finishx>
+        <finishy>14</finishy>
+        <finishz>0</finishz>
+        <grid>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 10 10 10 10 10 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 15 15 15 15 15 15 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 15 15 15 15 15 15 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 20 20 20 20 20 20 20 20 20 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 20 20 20 20 20 20 20 20 20 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 20 20 20 20 20 20 20 20 20 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 15 15 15 15 15 15 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 15 15 15 15 15 15 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 10 10 10 10 10 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</row>
+        </grid>
+    </map>
+    <algorithm>
+        <searchtype>astar</searchtype>
+        <hweight>1</hweight>
+        <metrictype>euclid</metrictype>
+        <breakingties>g-max</breakingties>
+        <linecost>1</linecost>
+        <diagonalcost>1.4</diagonalcost>
+        <allowdiagonal>1</allowdiagonal>
+        <allowsqueeze>0</allowsqueeze>
+    </algorithm>
+    <options>
+        <loglevel>1</loglevel>
+        <logpath />
+        <logfilename />
+    </options>
+    <log>
+        <mapfilename>/examples/simple_obstacle.xml</mapfilename>
+        <summary numberofsteps="3113" nodescreated="3918" length="47.706" time="0.01093" />
+        <path>
+            <row number="0">* 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="1">* 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="2">* 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="3">* 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="4">0 * 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="5">20 20 * 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 </row>
+            <row number="6">0 0 0 * 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="7">0 0 0 * 0 0 0 0 0 0 10 10 10 10 10 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="8">0 0 0 * 0 0 0 0 0 15 15 15 15 15 15 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="9">0 0 0 * 0 0 0 0 0 15 15 15 15 15 15 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="10">0 0 0 * 0 0 0 0 20 20 20 20 20 20 20 20 20 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="11">0 0 0 0 * 0 0 0 20 20 20 20 20 20 20 20 20 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="12">0 0 0 0 * 0 0 0 20 20 20 20 20 20 20 20 20 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="13">0 0 0 0 0 * 0 0 0 15 15 15 15 15 15 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="14">0 0 0 0 0 0 * 0 0 15 15 15 15 15 15 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="15">0 0 0 0 0 0 0 0 0 0 10 10 10 10 10 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="16">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="17">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="18">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="19">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="20">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="21">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="22">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="23">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="24">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="25">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="26">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="27">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="28">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row number="29">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
+        </path>
+        <lplevel>
+            <node x="0" y="0" z="0" number="0" />
+            <node x="0" y="1" z="1" number="1" />
+            <node x="0" y="2" z="2" number="2" />
+            <node x="0" y="2" z="3" number="3" />
+            <node x="0" y="2" z="4" number="4" />
+            <node x="0" y="3" z="5" number="5" />
+            <node x="0" y="3" z="6" number="6" />
+            <node x="0" y="3" z="7" number="7" />
+            <node x="1" y="4" z="8" number="8" />
+            <node x="1" y="4" z="9" number="9" />
+            <node x="1" y="4" z="10" number="10" />
+            <node x="1" y="4" z="11" number="11" />
+            <node x="1" y="4" z="12" number="12" />
+            <node x="1" y="4" z="13" number="13" />
+            <node x="1" y="4" z="14" number="14" />
+            <node x="1" y="4" z="15" number="15" />
+            <node x="1" y="4" z="16" number="16" />
+            <node x="1" y="4" z="17" number="17" />
+            <node x="1" y="4" z="18" number="18" />
+            <node x="1" y="4" z="19" number="19" />
+            <node x="2" y="5" z="20" number="20" />
+            <node x="3" y="6" z="19" number="21" />
+            <node x="3" y="6" z="18" number="22" />
+            <node x="3" y="6" z="17" number="23" />
+            <node x="3" y="6" z="16" number="24" />
+            <node x="3" y="6" z="15" number="25" />
+            <node x="3" y="6" z="14" number="26" />
+            <node x="3" y="6" z="13" number="27" />
+            <node x="3" y="6" z="12" number="28" />
+            <node x="3" y="7" z="11" number="29" />
+            <node x="3" y="8" z="10" number="30" />
+            <node x="3" y="9" z="9" number="31" />
+            <node x="3" y="10" z="8" number="32" />
+            <node x="3" y="10" z="7" number="33" />
+            <node x="4" y="11" z="6" number="34" />
+            <node x="4" y="12" z="5" number="35" />
+            <node x="4" y="12" z="4" number="36" />
+            <node x="5" y="13" z="3" number="37" />
+            <node x="5" y="13" z="2" number="38" />
+            <node x="6" y="14" z="1" number="39" />
+            <node x="6" y="14" z="0" number="40" />
+        </lplevel>
+        <hplevel>
+            <section number="0" start.x="0" start.y="0" start.z="0" finish.x="0" finish.y="2" finish.z="2" length="2.82843" />
+            <section number="1" start.x="0" start.y="2" start.z="2" finish.x="0" finish.y="2" finish.z="4" length="2" />
+            <section number="2" start.x="0" start.y="2" start.z="4" finish.x="0" finish.y="3" finish.z="5" length="1.41421" />
+            <section number="3" start.x="0" start.y="3" start.z="5" finish.x="0" finish.y="3" finish.z="7" length="2" />
+            <section number="4" start.x="0" start.y="3" start.z="7" finish.x="1" finish.y="4" finish.z="8" length="1.73205" />
+            <section number="5" start.x="1" start.y="4" start.z="8" finish.x="1" finish.y="4" finish.z="19" length="11" />
+            <section number="6" start.x="1" start.y="4" start.z="19" finish.x="2" finish.y="5" finish.z="20" length="1.73205" />
+            <section number="7" start.x="2" start.y="5" start.z="20" finish.x="3" finish.y="6" finish.z="19" length="1.73205" />
+            <section number="8" start.x="3" start.y="6" start.z="19" finish.x="3" finish.y="6" finish.z="12" length="7" />
+            <section number="9" start.x="3" start.y="6" start.z="12" finish.x="3" finish.y="10" finish.z="8" length="5.65685" />
+            <section number="10" start.x="3" start.y="10" start.z="8" finish.x="3" finish.y="10" finish.z="7" length="1" />
+            <section number="11" start.x="3" start.y="10" start.z="7" finish.x="4" finish.y="11" finish.z="6" length="1.73205" />
+            <section number="12" start.x="4" start.y="11" start.z="6" finish.x="4" finish.y="12" finish.z="5" length="1.41421" />
+            <section number="13" start.x="4" start.y="12" start.z="5" finish.x="4" finish.y="12" finish.z="4" length="1" />
+            <section number="14" start.x="4" start.y="12" start.z="4" finish.x="5" finish.y="13" finish.z="3" length="1.73205" />
+            <section number="15" start.x="5" start.y="13" start.z="3" finish.x="5" finish.y="13" finish.z="2" length="1" />
+            <section number="16" start.x="5" start.y="13" start.z="2" finish.x="6" finish.y="14" finish.z="1" length="1.73205" />
+            <section number="17" start.x="6" start.y="14" start.z="1" finish.x="6" finish.y="14" finish.z="0" length="1" />
+        </hplevel>
+    </log>
+</root>

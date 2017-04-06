@@ -106,9 +106,16 @@
 #define CN_SP_LL 1
 
 #define CN_SP_LL_NOLOG      0
+#define CN_SP_LL_TINY       0.5
 #define CN_SP_LL_SMALLLOG   1
 #define CN_SP_LL_FULLLOG    2
 #define CN_SP_LL_PARTIALLOG    1.5
+
+#define CN_SP_LL_NOLOG_WORD "none"
+#define CN_SP_LL_TINY_WORD "tiny"
+#define CN_SP_LL_SMALLLOG_WORD   "short"
+#define CN_SP_LL_FULLLOG_WORD    "medium"
+#define CN_SP_LL_PARTIALLOG_WORD    "full"
 
 #define CN_SP_AS 2 //AllowSqueeze
 

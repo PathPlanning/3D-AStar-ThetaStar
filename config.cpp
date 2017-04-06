@@ -4,7 +4,8 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
+#include <string>
 
 Config::Config() {
     LogParams = NULL;
@@ -17,7 +18,6 @@ Config::~Config() {
 }
 
 bool Config::getConfig(const char *FileName) {
-    double loglevel = -1;
     std::string value;
     std::stringstream stream;
     tinyxml2::XMLElement *root = 0, *algorithm = 0, *element = 0, *options = 0;
@@ -320,16 +320,34 @@ bool Config::getConfig(const char *FileName) {
             std::cout << "Value of '" << CNS_TAG_LOGLVL << "' tag was defined to 'short log' (1)." << std::endl;
             SearchParams[CN_SP_LL] = CN_SP_LL_SMALLLOG;
         } else {
-            stream << element->GetText();
-            stream >> loglevel;
-            stream.str("");
-            stream.clear();
+            double loglevel;
+            value = element->GetText();
+            std::transform(value.begin(), value.end(), value.begin(), std::tolower);
 
-            if (loglevel == CN_SP_LL_NOLOG) { SearchParams[CN_SP_LL] = CN_SP_LL_NOLOG; }
-            else if (loglevel == CN_SP_LL_SMALLLOG) { SearchParams[CN_SP_LL] = CN_SP_LL_SMALLLOG; }
-            else if (loglevel == CN_SP_LL_FULLLOG) { SearchParams[CN_SP_LL] = CN_SP_LL_FULLLOG; }
-            else if (loglevel == CN_SP_LL_PARTIALLOG) { SearchParams[CN_SP_LL] = CN_SP_LL_PARTIALLOG; }
-            else {
+            try {
+                loglevel = std::stod(value);
+            } catch (std::invalid_argument) {
+                loglevel = -1;
+            }
+
+            int is_converted = 0;
+            if (loglevel == CN_SP_LL_NOLOG || value == CN_SP_LL_NOLOG_WORD) {
+                SearchParams[CN_SP_LL] = CN_SP_LL_NOLOG;
+                is_converted = 1;
+            } else if (loglevel == CN_SP_LL_SMALLLOG || value == CN_SP_LL_SMALLLOG_WORD) {
+                SearchParams[CN_SP_LL] = CN_SP_LL_SMALLLOG;
+                is_converted = 1;
+            } else if (loglevel == CN_SP_LL_FULLLOG || value == CN_SP_LL_FULLLOG_WORD) {
+                SearchParams[CN_SP_LL] = CN_SP_LL_FULLLOG;
+                is_converted = 1;
+            } else if (loglevel == CN_SP_LL_PARTIALLOG || value == CN_SP_LL_PARTIALLOG_WORD) {
+                SearchParams[CN_SP_LL] = CN_SP_LL_PARTIALLOG;
+                is_converted = 1;
+            } else if (loglevel == CN_SP_LL_TINY || value == CN_SP_LL_TINY_WORD) {
+                SearchParams[CN_SP_LL] = CN_SP_LL_TINY;
+                is_converted = 1;
+            }
+            if (!is_converted) {
                 std::cout << "'" << CNS_TAG_LOGLVL << "' is not correctly specified" << '\n'
                           << "Available logging value are: " << CN_SP_LL_SMALLLOG << " (short log), "
                           << CN_SP_LL_PARTIALLOG
