@@ -45,7 +45,7 @@ bool ISearch::stopCriterion() {
 SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const EnvironmentOptions &options) {
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
-    open = std::list<Node>();
+    open = std::vector<Node>(1);
 
     Node curNode;
     curNode.i = map.start_i;
@@ -175,42 +175,91 @@ void ISearch::makeSecondaryPath(const Map &map, Node curNode) {
 }
 
 Node ISearch::findMin(int size) {
-    return *open.begin();
+    return open[1];
 }
 
 void ISearch::deleteMin(Node minNode, uint_least32_t key) {
-    open.pop_front();
+    if (open.size() > 1) {
+        open[1] = *open.rbegin();
+        open.pop_back();
+        sift_down(1);
+    }
 }
 
 void ISearch::addOpen(Node newNode, uint_least32_t key) {
-    std::list<Node>::iterator position = open.end();
-    std::list<Node>::iterator found = open.end();
-    for (auto it = open.begin(); it != open.end() && (position == open.end() || found == open.end()); ++it) {
-        if (position == open.end()) {
-            if (newNode.F < it->F) {
-                position = it;
-            } else if (newNode.F == it->F) {
-                if (breakingties == CN_SP_BT_GMAX && newNode.g > it->g ||
-                    breakingties == CN_SP_BT_GMIN && newNode.g < it->g)
-                    position = it;
+    bool found = false;
+    for (size_t k = 1; k != open.size(); ++k) {
+        if (open[k].i == newNode.i && open[k].j == newNode.j && open[k].z == newNode.z) {
+            found = true;
+            if (newNode.g < open[k].g) {
+                open[k] = newNode;
+                sift_up(k);
+                break;
+            }
+        }
+    }
+    if (!found) {
+        open.push_back(newNode);
+        sift_up(open.size() - 1);
+        ++openSize;
+    }
+}
+
+void ISearch::sift_up(int index) {
+    bool changed = true;
+    Node tmp;
+    while (index > 1 && changed) {
+        changed = false;
+        if (open[index].F < open[index >> 1].F) {
+            changed = true;
+        } else if (open[index].F == open[index >> 1].F) {
+            if (breakingties == CN_SP_BT_GMAX && open[index].g > open[index >> 1].g ||
+                breakingties == CN_SP_BT_GMIN && open[index].g < open[index >> 1].g) {
+                changed = true;
             }
         }
 
-        if (newNode.i == it->i && newNode.j == it->j && newNode.z == it->z) {
-            found = it;
+        if (changed) {
+            tmp = open[index >> 1];
+            open[index >> 1] = open[index];
+            open[index] = tmp;
+            index >>= 1;
         }
     }
-    if (found != open.end()) {
-        if (newNode.g < found->g) {
-            if (found == position) {
-                *found = newNode;
-            } else {
-                open.erase(found);
-                open.insert(position, newNode);
+}
+
+void ISearch::sift_down(int index) {
+    bool changed = true;
+    int candidate, left_child, right_child;
+    Node tmp;
+    while (index << 1 < open.size() && changed) {
+        candidate = index;
+        left_child = index << 1;
+        right_child = left_child + 1;
+        if (open[left_child].F < open[index].F) {
+            candidate = left_child;
+        } else if (open[left_child].F == open[index].F) {
+            if (breakingties == CN_SP_BT_GMAX && open[left_child].g > open[index].g ||
+                breakingties == CN_SP_BT_GMIN && open[left_child].g < open[index].g) {
+                candidate = left_child;
             }
         }
-    } else {
-        ++openSize;
-        open.insert(position, newNode);
+        if (right_child < open.size()) {
+            if (open[right_child].F < open[candidate].F) {
+                candidate = right_child;
+            } else if (open[right_child].F == open[candidate].F) {
+                if (breakingties == CN_SP_BT_GMAX && open[right_child].g > open[candidate].g ||
+                    breakingties == CN_SP_BT_GMIN && open[right_child].g < open[candidate].g) {
+                    candidate = right_child;
+                }
+            }
+        }
+        changed = candidate != index;
+        if (changed) {
+            tmp = open[candidate];
+            open[candidate] = open[index];
+            open[index] = tmp;
+            index = candidate;
+        }
     }
 }

@@ -39,12 +39,14 @@ protected:
     SearchResult sresult;
     NodeList lppath, hppath; // Found point by point and section paths
     std::unordered_map<uint_least32_t, Node> close;
-    std::list<Node> open;
+    std::vector<Node> open;
 
     int openSize;
     float hweight; // Heuristic weight coefficient
     int breakingties; // ID of criterion which used for choosing between node with the same f-value
-
+private:
+    void sift_up(int index);
+    void sift_down(int index);
 };
 
 #endif
