@@ -45,7 +45,7 @@ bool ISearch::stopCriterion() {
 SearchResult ISearch::startSearch(ILogger *Logger, const Map &map, const EnvironmentOptions &options) {
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
-    openMinimum = -1;
+    open = std::list<Node>();
 
     Node curNode;
     curNode.i = map.start_i;
@@ -123,7 +123,8 @@ std::list<Node> ISearch::findSuccessors(Node curNode, const Map &map, const Envi
                     }
                     if (options.allowcutcorners == CN_SP_AC_FALSE &&
                         (map.CellIsObstacle(curNode.i + i, curNode.j + j, curNode.z) ||
-                         map.CellIsObstacle(curNode.i + i, curNode.j, curNode.z + h) || map.CellIsObstacle(curNode.i, curNode.j + j, curNode.z + h))) {
+                         map.CellIsObstacle(curNode.i + i, curNode.j, curNode.z + h) ||
+                         map.CellIsObstacle(curNode.i, curNode.j + j, curNode.z + h))) {
                         continue;
                     }
                     newNode.i = curNode.i + i;
@@ -159,95 +160,57 @@ void ISearch::makeSecondaryPath(const Map &map, Node curNode) {
 
     while (iter != --lppath.List.end()) {
         cur = *iter;
-        iter++;
+        ++iter;
         next = *iter;
         move.i = next.i - cur.i;
         move.j = next.j - cur.j;
         move.z = next.z - cur.z;
-        iter++;
+        ++iter;
         if ((iter->i - next.i) != move.i || (iter->j - next.j) != move.j || (iter->z - next.z) != move.z)
             hppath.List.push_back(*(--iter));
         else
-            iter--;
+            --iter;
     }
     sresult.hppath = &hppath;
 }
 
 Node ISearch::findMin(int size) {
-    return open[openMinimum];
+    return *open.begin();
 }
 
 void ISearch::deleteMin(Node minNode, uint_least32_t key) {
-    open.erase(key);
-    Node min_node;
-    min_node.F = std::numeric_limits<float>::infinity();
-    if (!open.empty()) {
-        for (auto it = open.begin(); it != open.end(); ++it) {
-            if (it->second.F <= min_node.F) {
-                if (it->second.F == min_node.F) {
-                    switch (breakingties) {
-                        default:
-                        case CN_SP_BT_GMAX: {
-                            if (it->second.g >= min_node.g) {
-                                openMinimum = it->first;
-                                min_node = it->second;
-                            }
-                            break;
-                        }
-                        case CN_SP_BT_GMIN: {
-                            if (it->second.g <= min_node.g) {
-                                openMinimum = it->first;
-                                min_node = it->second;
-                            }
-                            break;
-                        }
-                    }
-                } else {
-                    openMinimum = it->first;
-                    min_node = it->second;
-                }
-            }
-        }
-    }
+    open.pop_front();
 }
 
 void ISearch::addOpen(Node newNode, uint_least32_t key) {
-    bool inserted = false;
-    if (open.find(key) != open.end()) {
-        if (newNode.F < open[key].F) {
-            open[key] = newNode;
-            inserted = true;
-        }
-    } else {
-        open[key] = newNode;
-        inserted = true;
-        ++openSize;
-    }
-
-    if (open.size() == 1) {
-        openMinimum = key;
-    } else {
-        Node min_node = open[openMinimum];
-        if (inserted && newNode.F <= min_node.F) {
-            if (newNode.F == min_node.F) {
-                switch (breakingties) {
-                    default:
-                    case CN_SP_BT_GMAX: {
-                        if (newNode.g >= min_node.g) {
-                            openMinimum = key;
-                        }
-                        break;
-                    }
-                    case CN_SP_BT_GMIN: {
-                        if (newNode.g <= min_node.g) {
-                            openMinimum = key;
-                        }
-                        break;
-                    }
-                }
-            } else {
-                openMinimum = key;
+    std::list<Node>::iterator position = open.end();
+    std::list<Node>::iterator found = open.end();
+    for (auto it = open.begin(); it != open.end() && (position == open.end() || found == open.end()); ++it) {
+        if (position == open.end()) {
+            if (newNode.F < it->F) {
+                position = it;
+            } else if (newNode.F == it->F) {
+                if (breakingties == CN_SP_BT_GMAX && newNode.g > it->g ||
+                    breakingties == CN_SP_BT_GMIN && newNode.g < it->g)
+                    position = it;
             }
         }
+
+        if (newNode.i == it->i && newNode.j == it->j && newNode.z == it->z) {
+            found = it;
+        }
+    }
+    if (found != open.end()) {
+        if (newNode.g < found->g) {
+            if (found == position) {
+                *found = newNode;
+            } else {
+                open.erase(found);
+                open.insert(position, newNode);
+            }
+        }
+    } else {
+        ++openSize;
+        open.insert(position, newNode);
     }
 }
