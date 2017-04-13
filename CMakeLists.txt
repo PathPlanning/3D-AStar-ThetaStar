@@ -38,4 +38,4 @@ set(SOURCE_FILES
         Queues.h
         tinyxml2.h
         tinyxml2.cpp)
-add_executable(Astar_heights ${SOURCE_FILES})
+add_executable(3D-AStar-ThetaStar ${SOURCE_FILES})

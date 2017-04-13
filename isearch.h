@@ -39,8 +39,8 @@ protected:
     SearchResult sresult;
     NodeList lppath, hppath; // Found point by point and section paths
     std::unordered_map<uint_least32_t, Node> close;
-    std::unordered_map<uint_least32_t, Node> *open;
-    std::vector<int_least64_t> openMinimums;
+    std::unordered_map<uint_least32_t, Node> open;
+    int_least64_t openMinimum;
 
     int openSize;
     float hweight; // Heuristic weight coefficient

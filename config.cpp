@@ -322,7 +322,7 @@ bool Config::getConfig(const char *FileName) {
         } else {
             double loglevel;
             value = element->GetText();
-            std::transform(value.begin(), value.end(), value.begin(), std::tolower);
+            std::transform(value.begin(), value.end(), value.begin(), ::tolower);
 
             try {
                 loglevel = std::stod(value);
